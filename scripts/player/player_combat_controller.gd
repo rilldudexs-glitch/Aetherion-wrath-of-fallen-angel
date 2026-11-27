@@ -6,9 +6,12 @@ class_name PlayerCombatController
 @export var light_range: float = 1.65
 @export var heavy_range: float = 2.0
 @export var attack_cooldown: float = 0.32
+@export var light_hit_delay: float = 0.13
+@export var heavy_hit_delay: float = 0.22
 @export var dodge_speed: float = 8.5
 @export var dodge_duration: float = 0.32
 @export var combo_reset_time: float = 0.9
+@export var input_buffer_time: float = 0.24
 
 @onready var player: DraevenController = get_parent() as DraevenController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
@@ -18,7 +21,12 @@ class_name PlayerCombatController
 var attack_timer: float = 0.0
 var combo_timer: float = 0.0
 var combo_step: int = 0
-var dodge_direction := Vector3.ZERO
+var light_buffer_timer: float = 0.0
+var pending_hit_timer: float = -1.0
+var pending_damage: float = 0.0
+var pending_reach: float = 0.0
+var pending_combo_index: int = 0
+var pending_heavy: bool = false
 var sphere := SphereShape3D.new()
 
 func _ready() -> void:
@@ -27,6 +35,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(attack_timer - delta, 0.0)
 	combo_timer = maxf(combo_timer - delta, 0.0)
+	light_buffer_timer = maxf(light_buffer_timer - delta, 0.0)
+	if pending_hit_timer >= 0.0:
+		pending_hit_timer -= delta
+		if pending_hit_timer <= 0.0:
+			_resolve_pending_hit()
 	if combo_timer <= 0.0:
 		combo_step = 0
 
@@ -37,10 +50,14 @@ func _physics_process(delta: float) -> void:
 		_start_dodge()
 		return
 
+	if Input.is_action_just_pressed("light_attack") and attack_timer > 0.0 and combo_step > 0:
+		light_buffer_timer = input_buffer_time
+
 	if attack_timer <= 0.0:
 		if Input.is_action_just_pressed("heavy_attack"):
 			_perform_attack(true)
-		elif Input.is_action_just_pressed("light_attack"):
+		elif Input.is_action_just_pressed("light_attack") or light_buffer_timer > 0.0:
+			light_buffer_timer = 0.0
 			_perform_attack(false)
 
 func _start_dodge() -> void:
@@ -48,22 +65,34 @@ func _start_dodge() -> void:
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 	if direction.length_squared() < 0.01:
 		direction = -player.global_transform.basis.z
-	dodge_direction = direction.normalized()
-	player.start_dodge(dodge_direction, dodge_speed, dodge_duration)
+	player.start_dodge(direction.normalized(), dodge_speed, dodge_duration)
 	attack_timer = maxf(attack_timer, dodge_duration)
+	pending_hit_timer = -1.0
+	light_buffer_timer = 0.0
 
 func _perform_attack(heavy: bool) -> void:
 	attack_timer = attack_cooldown
-	var damage := heavy_damage if heavy else light_damage
-	var reach := heavy_range if heavy else light_range
-	var attack_combo_index := 0 if heavy else (combo_step % 3) + 1
-	var hit_positions: Array[Vector3] = []
-	if visual:
-		visual.play_attack(attack_combo_index, heavy)
-	sphere.radius = reach * 0.58
+	pending_heavy = heavy
+	pending_damage = heavy_damage if heavy else light_damage
+	pending_reach = heavy_range if heavy else light_range
+	pending_combo_index = 0 if heavy else (combo_step % 3) + 1
+	pending_hit_timer = heavy_hit_delay if heavy else light_hit_delay
 
+	if visual:
+		visual.play_attack(pending_combo_index, heavy)
+
+	if not heavy:
+		combo_step = (combo_step % 3) + 1
+		combo_timer = combo_reset_time
+	else:
+		combo_step = 0
+		combo_timer = 0.0
+
+func _resolve_pending_hit() -> void:
+	pending_hit_timer = -1.0
+	sphere.radius = pending_reach * 0.58
 	var forward := -player.global_transform.basis.z
-	var center := player.global_position + Vector3.UP * 1.0 + forward * (reach * 0.62)
+	var center := player.global_position + Vector3.UP * 1.0 + forward * (pending_reach * 0.62)
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = sphere
 	query.transform = Transform3D(Basis.IDENTITY, center)
@@ -73,24 +102,20 @@ func _perform_attack(heavy: bool) -> void:
 
 	var hits := player.get_world_3d().direct_space_state.intersect_shape(query, 16)
 	var hit_ids: Dictionary = {}
+	var hit_positions: Array[Vector3] = []
 	for hit in hits:
-		var collider := hit.get("collider") as Node
+		var collider := hit.get("collider") as Node3D
+		if collider == null:
+			continue
 		var target_combat := _find_combat_component(collider)
 		if target_combat == null or hit_ids.has(target_combat.get_instance_id()):
 			continue
 		hit_ids[target_combat.get_instance_id()] = true
-		target_combat.apply_damage(damage, player)
+		target_combat.apply_damage(pending_damage, player)
 		hit_positions.append(collider.global_position)
 
 	if combo_vfx:
-		combo_vfx.play_attack(attack_combo_index, heavy, -player.global_transform.basis.z, hit_positions)
-
-	if not heavy:
-		combo_step = (combo_step % 3) + 1
-		combo_timer = combo_reset_time
-	else:
-		combo_step = 0
-		combo_timer = 0.0
+		combo_vfx.play_attack(pending_combo_index, pending_heavy, -player.global_transform.basis.z, hit_positions)
 
 func _find_combat_component(node: Node) -> CombatComponent:
 	var current := node
