@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
+
+[node name="AshenRaider" instance=ExtResource("1_base")]
+max_health = 65.0
+move_speed = 3.8
+detection_range = 11.0
+attack_range = 1.7
+attack_damage = 11.0
+attack_cooldown = 1.25
+attack_windup = 0.42
+recovery_duration = 0.38
