@@ -100,8 +100,11 @@ func _resolve_attack() -> void:
 		return
 	var target_combat := target.get_node_or_null("CombatComponent") as CombatComponent
 	if target_combat:
-		target_combat.apply_damage(attack_damage, self)
+		target_combat.apply_damage(get_attack_damage(), self)
 		attack_landed.emit()
+
+func get_attack_damage() -> float:
+	return attack_damage
 
 func _stop_horizontal(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, move_speed * delta * 4.0)
