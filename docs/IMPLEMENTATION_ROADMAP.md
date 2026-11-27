@@ -2,11 +2,12 @@
 
 ## Implemented foundation
 
-- Draeven third-person scene with a placeholder body, named skeleton hierarchy, right-hand BoneAttachment3D, WeaponSocket, and third-person camera.
+- Draeven third-person scene with a procedural articulated character model, silver hair, dark-blue coat, silver armor accents, a right-hand weapon socket, and third-person camera.
 - Separate camera-relative player movement controller.
-- Player melee controller with light/heavy attacks using a short-range physics shape query.
-- Player dodge movement with a brief invulnerability window.
+- Player melee controller with light/heavy attacks, a three-hit combo chain, short input buffering, and hit timing aligned to the attack animation.
+- Player dodge movement with a brief invulnerability window and a matching body pose.
 - Lightweight combo VFX: three differently angled slash arcs, a brighter echoed slash on the third hit, impact flashes, short spark streaks, and a ground shock ring on a successful heavy hit.
+- Procedural character motion for idle breathing, walk cycle, light/heavy attack swings, and dodge lean. The sword is parented to the right hand pivot.
 - Reusable CombatComponent for health, damage, healing, and defeat signals.
 - Enemy state flow: idle, chase, attack windup, recovery, and dead.
 - Enemy attacks show a ground warning ring during windup and recheck distance when the windup ends, so a player who moves away can avoid the hit.
@@ -40,6 +41,10 @@
 
 These are gameplay stat profiles using the shared placeholder enemy scene. They do not yet have unique meshes, animation sets, or bespoke attack logic.
 
+## Current focus
+
+Draeven's model, animation feel, weapon alignment, combo timing, and movement are the active implementation focus. The main scene is currently a Draeven-only sandbox; enemy and boss encounter work is intentionally deferred.
+
 ## Planned campaign bosses
 
 1. Severin Kael — Eldoria.
@@ -54,11 +59,11 @@ These are gameplay stat profiles using the shared placeholder enemy scene. They 
 ## Next implementation passes
 
 1. Open and validate the project in Godot 4.3; this repository pass has not yet been run through the Godot editor or headless parser.
-2. Add a proper humanoid rig, skinned model, animation clips, and weapon attachment alignment.
-3. Replace the current sphere-query melee with animation-timed hitboxes/hurtboxes and real combo timing.
-4. Give each enemy archetype distinct behavior and give each campaign boss bespoke attacks, telegraphs, and phase mechanics.
-5. Add a combat HUD, touch controls, save data, audio, and Android profiling.
+2. Refine the procedural character proportions, coat silhouette, face, hair, and sword grip; replace the procedural model with a skinned production model when assets are ready.
+3. Improve attack animation variety, hit windows, movement blending, and weapon trails.
+4. Add mobile touch controls and profile the character sandbox on target Android hardware.
+5. Resume enemy and boss implementation only after Draeven's foundation is approved.
 
 ## Scope notes
 
-This is an expanding gameplay foundation, not a finished playable build. Character and enemy visuals remain placeholders. The skeleton is a named hierarchy scaffold, not a finished skinned rig. There are no final animation clips, boss-specific movesets, loot progression, touch controls, save system, or Android APK yet. Godot runtime validation is still pending because no Godot executable was available during this implementation pass.
+This is an expanding gameplay foundation, not a finished playable build. Draeven currently uses a procedural primitive-based model and code-driven motion, not a final skinned production asset or imported animation clips. Enemy and boss work is deferred. There are no touch controls, save system, or Android APK yet. Godot runtime validation is still pending because no Godot executable was available during this implementation pass.
