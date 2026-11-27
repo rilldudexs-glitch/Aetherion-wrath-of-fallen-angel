@@ -1,0 +1,93 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/draeven_controller.gd" id="1_controller"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
+radius = 0.38
+height = 1.85
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.38
+height = 1.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_weapon"]
+size = Vector3(0.08, 0.08, 0.5)
+
+[node name="Draeven" type="CharacterBody3D"]
+script = ExtResource("1_controller")
+floor_snap_length = 0.25
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.93, 0)
+shape = SubResource("CapsuleShape_body")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="BodyPlaceholder" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.93, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="Skeleton3D" type="Skeleton3D" parent="VisualRoot"]
+bones/0/name = "root"
+bones/0/parent = -1
+bones/1/name = "pelvis"
+bones/1/parent = 0
+bones/2/name = "spine"
+bones/2/parent = 1
+bones/3/name = "chest"
+bones/3/parent = 2
+bones/4/name = "neck"
+bones/4/parent = 3
+bones/5/name = "head"
+bones/5/parent = 4
+bones/6/name = "shoulder.L"
+bones/6/parent = 3
+bones/7/name = "upper_arm.L"
+bones/7/parent = 6
+bones/8/name = "forearm.L"
+bones/8/parent = 7
+bones/9/name = "hand.L"
+bones/9/parent = 8
+bones/10/name = "shoulder.R"
+bones/10/parent = 3
+bones/11/name = "upper_arm.R"
+bones/11/parent = 10
+bones/12/name = "forearm.R"
+bones/12/parent = 11
+bones/13/name = "hand.R"
+bones/13/parent = 12
+bones/14/name = "thigh.L"
+bones/14/parent = 1
+bones/15/name = "calf.L"
+bones/15/parent = 14
+bones/16/name = "foot.L"
+bones/16/parent = 15
+bones/17/name = "thigh.R"
+bones/17/parent = 1
+bones/18/name = "calf.R"
+bones/18/parent = 17
+bones/19/name = "foot.R"
+bones/19/parent = 18
+
+[node name="RightHandAttachment" type="BoneAttachment3D" parent="VisualRoot/Skeleton3D"]
+bone_name = "hand.R"
+
+[node name="WeaponSocket" type="Marker3D" parent="VisualRoot/Skeleton3D/RightHandAttachment"]
+position = Vector3(0, 0, -0.2)
+rotation_degrees = Vector3(90, 0, 0)
+
+[node name="WeaponPlaceholder" type="MeshInstance3D" parent="VisualRoot/Skeleton3D/RightHandAttachment/WeaponSocket"]
+position = Vector3(0, 0, -0.25)
+mesh = SubResource("BoxMesh_weapon")
+visible = false
+
+[node name="CameraPivot" type="Node3D" parent="."]
+position = Vector3(0, 1.55, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+spring_length = 4.6
+collision_mask = 1
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+current = true
+fov = 65.0
