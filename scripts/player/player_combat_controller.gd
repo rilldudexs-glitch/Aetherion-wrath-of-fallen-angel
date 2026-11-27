@@ -10,7 +10,7 @@ class_name PlayerCombatController
 @export var dodge_duration: float = 0.32
 @export var combo_reset_time: float = 0.9
 
-@onready var player: CharacterBody3D = get_parent() as CharacterBody3D
+@onready var player: DraevenController = get_parent() as DraevenController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
 
 var attack_timer: float = 0.0
