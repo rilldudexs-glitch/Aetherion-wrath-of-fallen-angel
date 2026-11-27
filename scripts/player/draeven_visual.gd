@@ -51,14 +51,18 @@ func _process(delta: float) -> void:
 		left_leg.rotation.x = swing
 		right_leg.rotation.x = -swing
 		left_arm.rotation.x = -swing * 0.62
-		if action_time > 0.16:
-			right_arm.rotation.x = lerpf(right_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
+		right_arm.rotation.x = lerpf(right_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
+		coat_left.rotation.x = lerpf(coat_left.rotation.x, swing * 0.12, delta * 8.0)
+		coat_right.rotation.x = lerpf(coat_right.rotation.x, -swing * 0.12, delta * 8.0)
 	elif action_name == &"idle":
 		var breath := sin(action_time * 2.1) * 0.018
 		if chest:
 			chest.position.y = 1.38 + breath
 		if head:
 			head.rotation.x = sin(action_time * 1.1) * 0.018
+		if coat_left:
+			coat_left.rotation.x = lerpf(coat_left.rotation.x, 0.0, delta * 5.0)
+			coat_right.rotation.x = lerpf(coat_right.rotation.x, 0.0, delta * 5.0)
 	elif action_name == &"dodge":
 		body.rotation.z = lerpf(body.rotation.z, 0.24, delta * animation_blend_speed)
 	elif action_name == &"attack":
@@ -67,7 +71,10 @@ func _process(delta: float) -> void:
 func play_move(moving: bool) -> void:
 	if action_name in [&"attack", &"dodge"]:
 		return
-	action_name = &"walk" if moving else &"idle"
+	var next_action: StringName = &"walk" if moving else &"idle"
+	if action_name == next_action:
+		return
+	action_name = next_action
 	action_time = 0.0
 	if not moving:
 		_reset_limb_pose()
