@@ -1,0 +1,87 @@
+extends CharacterBody3D
+class_name EnemyController
+
+signal state_changed(new_state: StringName)
+signal attack_started
+signal defeated
+
+enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
+
+@export var move_speed: float = 2.8
+@export var detection_range: float = 10.0
+@export var attack_range: float = 1.8
+@export var attack_damage: float = 12.0
+@export var attack_cooldown: float = 1.6
+@export var target_path: NodePath
+
+@onready var combat: CombatComponent = get_node_or_null("CombatComponent") as CombatComponent
+var target: Node3D
+var state: State = State.IDLE
+var attack_timer: float = 0.0
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+func _ready() -> void:
+	if not target_path.is_empty():
+		target = get_node_or_null(target_path) as Node3D
+	if combat:
+		combat.defeated.connect(_on_defeated)
+
+func _physics_process(delta: float) -> void:
+	if state == State.DEAD:
+		return
+	attack_timer = maxf(attack_timer - delta, 0.0)
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+	else:
+		velocity.y = 0.0
+	if not is_instance_valid(target):
+		_set_state(State.IDLE)
+		velocity.x = move_toward(velocity.x, 0.0, move_speed * delta * 2.0)
+		velocity.z = move_toward(velocity.z, 0.0, move_speed * delta * 2.0)
+		move_and_slide()
+		return
+
+	var distance := global_position.distance_to(target.global_position)
+	if distance > detection_range:
+		_set_state(State.IDLE)
+		_stop_horizontal(delta)
+	elif distance > attack_range:
+		_set_state(State.CHASE)
+		var direction := (target.global_position - global_position).normalized()
+		direction.y = 0.0
+		velocity.x = direction.x * move_speed
+		velocity.z = direction.z * move_speed
+		_face_target(direction, delta)
+	else:
+		_stop_horizontal(delta)
+		if attack_timer <= 0.0:
+			_attack()
+	move_and_slide()
+
+func _attack() -> void:
+	_set_state(State.ATTACK)
+	attack_timer = attack_cooldown
+	attack_started.emit()
+	var target_combat := target.get_node_or_null("CombatComponent") as CombatComponent
+	if target_combat:
+		target_combat.apply_damage(attack_damage, self)
+	_set_state(State.RECOVER)
+
+func _stop_horizontal(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, move_speed * delta * 4.0)
+	velocity.z = move_toward(velocity.z, 0.0, move_speed * delta * 4.0)
+
+func _face_target(direction: Vector3, delta: float) -> void:
+	if direction.length_squared() > 0.001:
+		rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), 8.0 * delta)
+
+func _set_state(next_state: State) -> void:
+	if state == next_state:
+		return
+	state = next_state
+	state_changed.emit(StringName(State.keys()[state].to_lower()))
+
+func _on_defeated() -> void:
+	_set_state(State.DEAD)
+	defeated.emit()
+	queue_free()
