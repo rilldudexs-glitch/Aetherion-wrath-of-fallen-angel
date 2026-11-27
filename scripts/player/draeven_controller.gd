@@ -11,7 +11,7 @@ class_name DraevenController
 @export var camera_pitch_max: float = 0.35
 
 @onready var camera_pivot: Node3D = $CameraPivot
-@onready var weapon_socket: Marker3D = $VisualRoot/Skeleton3D/RightHandAttachment/WeaponSocket
+@onready var visual: DraevenVisual = $VisualRoot
 
 var camera_yaw: float = 0.0
 var camera_pitch: float = -0.18
@@ -56,6 +56,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = 0.0
 
+	visual.play_move(move_direction.length_squared() > 0.001)
+
 	if move_direction.length_squared() > 0.001:
 		var target_angle := atan2(move_direction.x, move_direction.z)
 		rotation.y = lerp_angle(rotation.y, target_angle, turn_speed * delta)
@@ -68,9 +70,11 @@ func start_dodge(direction: Vector3, speed: float, duration: float) -> void:
 	dodge_time_left = duration
 	if combat_component:
 		combat_component.invulnerable = true
+	if visual:
+		visual.play_dodge(direction)
 
 func is_dodging() -> bool:
 	return dodge_time_left > 0.0
 
 func get_weapon_socket() -> Marker3D:
-	return weapon_socket
+	return visual.get_weapon_socket()
