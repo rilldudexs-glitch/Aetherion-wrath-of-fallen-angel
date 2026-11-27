@@ -59,4 +59,4 @@ boss_scene = ExtResource("4_boss")
 boss_on_final_wave = true
 spawn_points = Array[NodePath]([NodePath("../SpawnPoints/SpawnA"), NodePath("../SpawnPoints/SpawnB"), NodePath("../SpawnPoints/SpawnC"), NodePath("../SpawnPoints/BossSpawn")])
 player_path = NodePath("../Draeven")
-waves = Array[int]([2, 1])
+waves = Array[int]([3, 1])
