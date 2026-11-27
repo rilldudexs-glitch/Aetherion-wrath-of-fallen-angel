@@ -23,16 +23,24 @@ var action_time: float = 0.0
 var walk_phase: float = 0.0
 var attack_variant: int = 1
 
-var mat_coat := _material(Color(0.025, 0.055, 0.12), 0.72, 0.12)
-var mat_coat_inner := _material(Color(0.012, 0.02, 0.045), 0.85, 0.05)
-var mat_silver := _material(Color(0.58, 0.68, 0.78), 0.35, 0.45)
-var mat_armor := _material(Color(0.09, 0.13, 0.19), 0.38, 0.32)
-var mat_skin := _material(Color(0.72, 0.55, 0.43), 0.82, 0.0)
-var mat_hair := _material(Color(0.78, 0.83, 0.9), 0.42, 0.3)
-var mat_boot := _material(Color(0.025, 0.03, 0.045), 0.55, 0.12)
-var mat_eye := _material(Color(0.12, 0.42, 0.72), 0.22, 0.8)
+var mat_coat: StandardMaterial3D
+var mat_coat_inner: StandardMaterial3D
+var mat_silver: StandardMaterial3D
+var mat_armor: StandardMaterial3D
+var mat_skin: StandardMaterial3D
+var mat_hair: StandardMaterial3D
+var mat_boot: StandardMaterial3D
+var mat_eye: StandardMaterial3D
 
 func _ready() -> void:
+	mat_coat = _material(Color(0.025, 0.055, 0.12), 0.72, 0.12)
+	mat_coat_inner = _material(Color(0.012, 0.02, 0.045), 0.85, 0.05)
+	mat_silver = _material(Color(0.58, 0.68, 0.78), 0.35, 0.45)
+	mat_armor = _material(Color(0.09, 0.13, 0.19), 0.38, 0.32)
+	mat_skin = _material(Color(0.72, 0.55, 0.43), 0.82, 0.0)
+	mat_hair = _material(Color(0.78, 0.83, 0.9), 0.42, 0.3)
+	mat_boot = _material(Color(0.025, 0.03, 0.045), 0.55, 0.12)
+	mat_eye = _material(Color(0.12, 0.42, 0.72), 0.22, 0.8)
 	_build_character()
 
 func _process(delta: float) -> void:
