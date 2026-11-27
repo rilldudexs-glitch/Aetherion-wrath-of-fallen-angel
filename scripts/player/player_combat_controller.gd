@@ -14,7 +14,6 @@ class_name PlayerCombatController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
 
 var attack_timer: float = 0.0
-var dodge_timer: float = 0.0
 var combo_timer: float = 0.0
 var combo_step: int = 0
 var dodge_direction := Vector3.ZERO
@@ -29,12 +28,7 @@ func _physics_process(delta: float) -> void:
 	if combo_timer <= 0.0:
 		combo_step = 0
 
-	if dodge_timer > 0.0:
-		dodge_timer -= delta
-		player.velocity.x = dodge_direction.x * dodge_speed
-		player.velocity.z = dodge_direction.z * dodge_speed
-		if dodge_timer <= 0.0 and combat:
-			combat.invulnerable = false
+	if player.is_dodging():
 		return
 
 	if Input.is_action_just_pressed("dodge"):
@@ -53,10 +47,8 @@ func _start_dodge() -> void:
 	if direction.length_squared() < 0.01:
 		direction = -player.global_transform.basis.z
 	dodge_direction = direction.normalized()
-	dodge_timer = dodge_duration
+	player.start_dodge(dodge_direction, dodge_speed, dodge_duration)
 	attack_timer = maxf(attack_timer, dodge_duration)
-	if combat:
-		combat.invulnerable = true
 
 func _perform_attack(heavy: bool) -> void:
 	attack_timer = attack_cooldown
