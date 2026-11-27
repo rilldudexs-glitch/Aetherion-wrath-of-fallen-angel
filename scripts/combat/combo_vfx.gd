@@ -16,26 +16,32 @@ func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions:
 		direction = Vector3.FORWARD
 	var origin := get_parent().global_position + Vector3.UP * (1.12 if not heavy else 1.0)
 	_spawn_slash(origin, direction, combo_index, heavy)
+	if not heavy and combo_index == 3:
+		_spawn_slash(origin + Vector3.UP * 0.08, direction, 2, false, true)
 	for hit_position in hit_positions:
-		_spawn_impact(hit_position + Vector3.UP * 0.85, combo_index, heavy)
+		var impact_position := hit_position + Vector3.UP * 0.85
+		_spawn_impact(impact_position, combo_index, heavy)
+		_spawn_sparks(impact_position, direction, heavy)
+	if heavy and not hit_positions.is_empty():
+		_spawn_shock_ring(hit_positions[0])
 
-func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: bool) -> void:
+func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: bool, echo: bool = false) -> void:
 	var slash := MeshInstance3D.new()
 	slash.mesh = _build_arc_mesh(1.35 if not heavy else 1.7, 0.78 if not heavy else 0.92)
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.albedo_color = Color(0.9, 0.96, 1.0, 0.92) if heavy else COMBO_COLORS[clampi(combo_index - 1, 0, 2)]
+	material.albedo_color = Color(0.45, 0.72, 1.0, 0.48) if echo else (Color(0.9, 0.96, 1.0, 0.92) if heavy else COMBO_COLORS[clampi(combo_index - 1, 0, 2)])
 	material.emission_enabled = true
 	material.emission = Color(0.42, 0.72, 1.0) if not heavy else Color(0.8, 0.92, 1.0)
 	material.emission_energy_multiplier = 1.8 if not heavy else 2.7
 	slash.material_override = material
 	get_tree().current_scene.add_child(slash)
-	slash.global_position = origin + direction * 0.72
+	slash.global_position = origin + direction * (0.72 if not echo else 0.78)
 	slash.global_basis = Basis.looking_at(direction, Vector3.UP)
 	slash.rotation.z = deg_to_rad([-28.0, 24.0, 72.0][clampi(combo_index - 1, 0, 2)] if not heavy else -8.0)
-	_animate_mesh(slash, material, effect_lifetime, Vector3(1.0, 1.0, 1.0), Vector3(1.28, 1.12, 1.0))
+	_animate_mesh(slash, material, effect_lifetime * (1.0 if not echo else 0.8), Vector3(1.0, 1.0, 1.0), Vector3(1.28, 1.12, 1.0))
 
 func _spawn_impact(position: Vector3, combo_index: int, heavy: bool) -> void:
 	var burst := MeshInstance3D.new()
@@ -54,6 +60,49 @@ func _spawn_impact(position: Vector3, combo_index: int, heavy: bool) -> void:
 	get_tree().current_scene.add_child(burst)
 	burst.global_position = position
 	_animate_mesh(burst, material, spark_lifetime, Vector3(0.35, 0.35, 0.35), Vector3(1.8, 1.8, 1.8))
+
+func _spawn_sparks(position: Vector3, forward: Vector3, heavy: bool) -> void:
+	var spark_count := 7 if heavy else 4
+	for i in range(spark_count):
+		var spark := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.035, 0.035, 0.28 if heavy else 0.18)
+		spark.mesh = box
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.albedo_color = Color(0.72, 0.9, 1.0, 0.95)
+		material.emission_enabled = true
+		material.emission = Color(0.4, 0.72, 1.0)
+		material.emission_energy_multiplier = 2.0
+		spark.material_override = material
+		get_tree().current_scene.add_child(spark)
+		spark.global_position = position
+		var spread := Vector3(randf_range(-0.8, 0.8), randf_range(-0.25, 0.8), randf_range(-0.7, 0.7))
+		var travel := (forward * 0.4 + spread).normalized()
+		spark.look_at(spark.global_position + travel, Vector3.UP)
+		_animate_mesh(spark, material, spark_lifetime, Vector3.ONE, Vector3(0.25, 0.25, 0.25))
+		var move_tween := spark.create_tween()
+		move_tween.tween_property(spark, "global_position", position + travel * (0.65 if heavy else 0.4), spark_lifetime).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+func _spawn_shock_ring(position: Vector3) -> void:
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.55
+	torus.outer_radius = 0.72
+	ring.mesh = torus
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(0.55, 0.82, 1.0, 0.8)
+	material.emission_enabled = true
+	material.emission = Color(0.35, 0.68, 1.0)
+	material.emission_energy_multiplier = 2.6
+	ring.material_override = material
+	get_tree().current_scene.add_child(ring)
+	ring.global_position = position + Vector3.UP * 0.08
+	ring.rotation.x = deg_to_rad(90.0)
+	_animate_mesh(ring, material, 0.28, Vector3(0.45, 0.45, 0.45), Vector3(2.0, 2.0, 2.0))
 
 func _animate_mesh(mesh_instance: MeshInstance3D, material: StandardMaterial3D, lifetime: float, start_scale: Vector3, end_scale: Vector3) -> void:
 	mesh_instance.scale = start_scale
