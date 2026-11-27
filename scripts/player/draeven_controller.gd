@@ -15,6 +15,10 @@ class_name DraevenController
 
 var camera_yaw: float = 0.0
 var camera_pitch: float = -0.18
+var dodge_time_left: float = 0.0
+var dodge_direction: Vector3 = Vector3.ZERO
+var dodge_speed: float = 8.5
+@onready var combat_component: CombatComponent = get_node_or_null("CombatComponent") as CombatComponent
 
 func _ready() -> void:
 	camera_yaw = rotation.y
@@ -27,6 +31,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pivot.rotation.x = camera_pitch
 
 func _physics_process(delta: float) -> void:
+	if dodge_time_left > 0.0:
+		dodge_time_left = maxf(dodge_time_left - delta, 0.0)
+		velocity.x = dodge_direction.x * dodge_speed
+		velocity.z = dodge_direction.z * dodge_speed
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+		else:
+			velocity.y = 0.0
+		if dodge_time_left <= 0.0 and combat_component:
+			combat_component.invulnerable = false
+		move_and_slide()
+		return
+
 	var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var basis := Basis(Vector3.UP, camera_yaw)
 	var move_direction := (basis * Vector3(input_vector.x, 0.0, input_vector.y)).normalized()
@@ -44,6 +61,16 @@ func _physics_process(delta: float) -> void:
 		rotation.y = lerp_angle(rotation.y, target_angle, turn_speed * delta)
 
 	move_and_slide()
+
+func start_dodge(direction: Vector3, speed: float, duration: float) -> void:
+	dodge_direction = direction.normalized()
+	dodge_speed = speed
+	dodge_time_left = duration
+	if combat_component:
+		combat_component.invulnerable = true
+
+func is_dodging() -> bool:
+	return dodge_time_left > 0.0
 
 func get_weapon_socket() -> Marker3D:
 	return weapon_socket
