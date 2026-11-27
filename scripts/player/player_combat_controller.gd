@@ -13,6 +13,7 @@ class_name PlayerCombatController
 @onready var player: DraevenController = get_parent() as DraevenController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
 @onready var combo_vfx: ComboVFX = player.get_node_or_null("ComboVFX") as ComboVFX
+@onready var visual: DraevenVisual = player.get_node_or_null("VisualRoot") as DraevenVisual
 
 var attack_timer: float = 0.0
 var combo_timer: float = 0.0
@@ -57,6 +58,8 @@ func _perform_attack(heavy: bool) -> void:
 	var reach := heavy_range if heavy else light_range
 	var attack_combo_index := 0 if heavy else (combo_step % 3) + 1
 	var hit_positions: Array[Vector3] = []
+	if visual:
+		visual.play_attack(attack_combo_index, heavy)
 	sphere.radius = reach * 0.58
 
 	var forward := -player.global_transform.basis.z
