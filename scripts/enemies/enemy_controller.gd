@@ -19,6 +19,7 @@ enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
 @export var target_path: NodePath
 
 @onready var combat: CombatComponent = get_node_or_null("CombatComponent") as CombatComponent
+@onready var attack_telegraph: MeshInstance3D = get_node_or_null("AttackTelegraph") as MeshInstance3D
 var target: Node3D
 var state: State = State.IDLE
 var attack_timer: float = 0.0
@@ -92,11 +93,15 @@ func _physics_process(delta: float) -> void:
 
 func _begin_attack() -> void:
 	_set_state(State.ATTACK)
+	if attack_telegraph:
+		attack_telegraph.visible = true
 	attack_timer = attack_cooldown
 	state_timer = attack_windup
 	attack_started.emit()
 
 func _resolve_attack() -> void:
+	if attack_telegraph:
+		attack_telegraph.visible = false
 	if not is_instance_valid(target):
 		return
 	if global_position.distance_to(target.global_position) > attack_range * 1.2:
@@ -127,5 +132,7 @@ func _on_defeated() -> void:
 	if state == State.DEAD:
 		return
 	_set_state(State.DEAD)
+	if attack_telegraph:
+		attack_telegraph.visible = false
 	defeated.emit()
 	queue_free()
