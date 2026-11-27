@@ -3,6 +3,7 @@ class_name EnemyController
 
 signal state_changed(new_state: StringName)
 signal attack_started
+signal attack_landed
 signal defeated
 
 enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
@@ -12,12 +13,15 @@ enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
 @export var attack_range: float = 1.8
 @export var attack_damage: float = 12.0
 @export var attack_cooldown: float = 1.6
+@export var attack_windup: float = 0.65
+@export var recovery_duration: float = 0.55
 @export var target_path: NodePath
 
 @onready var combat: CombatComponent = get_node_or_null("CombatComponent") as CombatComponent
 var target: Node3D
 var state: State = State.IDLE
 var attack_timer: float = 0.0
+var state_timer: float = 0.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready() -> void:
@@ -32,42 +36,72 @@ func set_target(new_target: Node3D) -> void:
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
+
 	attack_timer = maxf(attack_timer - delta, 0.0)
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
 		velocity.y = 0.0
+
+	if state == State.ATTACK:
+		state_timer -= delta
+		_stop_horizontal(delta)
+		if state_timer <= 0.0:
+			_resolve_attack()
+			_set_state(State.RECOVER)
+			state_timer = recovery_duration
+		move_and_slide()
+		return
+
+	if state == State.RECOVER:
+		state_timer -= delta
+		_stop_horizontal(delta)
+		if state_timer <= 0.0:
+			_set_state(State.IDLE)
+		move_and_slide()
+		return
+
 	if not is_instance_valid(target):
 		_set_state(State.IDLE)
 		_stop_horizontal(delta)
 		move_and_slide()
 		return
 
-	var distance := global_position.distance_to(target.global_position)
+	var offset := target.global_position - global_position
+	var distance := offset.length()
+	var direction := offset.normalized()
+	direction.y = 0.0
+
 	if distance > detection_range:
 		_set_state(State.IDLE)
 		_stop_horizontal(delta)
 	elif distance > attack_range:
 		_set_state(State.CHASE)
-		var direction := (target.global_position - global_position).normalized()
-		direction.y = 0.0
 		velocity.x = direction.x * move_speed
 		velocity.z = direction.z * move_speed
 		_face_target(direction, delta)
 	else:
 		_stop_horizontal(delta)
+		_face_target(direction, delta)
 		if attack_timer <= 0.0:
-			_attack()
+			_begin_attack()
 	move_and_slide()
 
-func _attack() -> void:
+func _begin_attack() -> void:
 	_set_state(State.ATTACK)
 	attack_timer = attack_cooldown
+	state_timer = attack_windup
 	attack_started.emit()
+
+func _resolve_attack() -> void:
+	if not is_instance_valid(target):
+		return
+	if global_position.distance_to(target.global_position) > attack_range * 1.2:
+		return
 	var target_combat := target.get_node_or_null("CombatComponent") as CombatComponent
 	if target_combat:
 		target_combat.apply_damage(attack_damage, self)
-	_set_state(State.RECOVER)
+		attack_landed.emit()
 
 func _stop_horizontal(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, move_speed * delta * 4.0)
@@ -84,6 +118,8 @@ func _set_state(next_state: State) -> void:
 	state_changed.emit(StringName(State.keys()[state].to_lower()))
 
 func _on_defeated() -> void:
+	if state == State.DEAD:
+		return
 	_set_state(State.DEAD)
 	defeated.emit()
 	queue_free()
