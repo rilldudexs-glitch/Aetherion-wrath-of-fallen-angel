@@ -1,8 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_draeven"]
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="3_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ashen_raider.tscn" id="3_raider"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ashen_brute.tscn" id="6_brute"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ashen_stalker.tscn" id="7_stalker"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/boss_base.tscn" id="4_boss"]
 [ext_resource type="Script" path="res://scripts/systems/encounter_director.gd" id="5_director"]
 
@@ -43,15 +45,18 @@ position = Vector3(-6, 0, -5)
 [node name="SpawnB" type="Marker3D" parent="SpawnPoints"]
 position = Vector3(6, 0, -5)
 
+[node name="SpawnC" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0, 0, -7)
+
 [node name="BossSpawn" type="Marker3D" parent="SpawnPoints"]
-position = Vector3(0, 0, -8)
+position = Vector3(0, 0, -9)
 
 [node name="EncounterDirector" type="Node3D" parent="."]
 script = ExtResource("5_director")
 auto_start = true
-enemy_scenes = Array[PackedScene]([ExtResource("3_enemy")])
+enemy_scenes = Array[PackedScene]([ExtResource("3_raider"), ExtResource("6_brute"), ExtResource("7_stalker")])
 boss_scene = ExtResource("4_boss")
 boss_on_final_wave = true
-spawn_points = Array[NodePath]([NodePath("../SpawnPoints/SpawnA"), NodePath("../SpawnPoints/SpawnB"), NodePath("../SpawnPoints/BossSpawn")])
+spawn_points = Array[NodePath]([NodePath("../SpawnPoints/SpawnA"), NodePath("../SpawnPoints/SpawnB"), NodePath("../SpawnPoints/SpawnC"), NodePath("../SpawnPoints/BossSpawn")])
 player_path = NodePath("../Draeven")
 waves = Array[int]([2, 1])
