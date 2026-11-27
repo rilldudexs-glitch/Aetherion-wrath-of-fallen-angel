@@ -8,6 +8,7 @@ signal defeated
 
 enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
 
+@export var max_health: float = 60.0
 @export var move_speed: float = 2.8
 @export var detection_range: float = 10.0
 @export var attack_range: float = 1.8
@@ -28,6 +29,8 @@ func _ready() -> void:
 	if not target_path.is_empty():
 		target = get_node_or_null(target_path) as Node3D
 	if combat:
+		combat.max_health = max_health
+		combat.reset_health()
 		combat.defeated.connect(_on_defeated)
 
 func set_target(new_target: Node3D) -> void:
