@@ -6,6 +6,7 @@ signal wave_started(wave_number: int)
 signal wave_cleared(wave_number: int)
 signal encounter_completed
 
+@export var auto_start: bool = false
 @export var enemy_scenes: Array[PackedScene] = []
 @export var spawn_points: Array[NodePath] = []
 @export var player_path: NodePath
@@ -19,6 +20,8 @@ var player: Node3D
 func _ready() -> void:
 	if not player_path.is_empty():
 		player = get_node_or_null(player_path) as Node3D
+	if auto_start:
+		call_deferred("start_encounter")
 
 func start_encounter() -> void:
 	if active or waves.is_empty() or enemy_scenes.is_empty() or spawn_points.is_empty():
