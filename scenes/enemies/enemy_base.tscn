@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/enemy_controller.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
@@ -21,6 +21,23 @@ shape = SubResource("CapsuleShape_enemy")
 [node name="Visual" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.85, 0)
 mesh = SubResource("CapsuleMesh_enemy")
+
+
+[sub_resource type="TorusMesh" id="TorusMesh_telegraph"]
+inner_radius = 0.72
+outer_radius = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Material_telegraph"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.95, 0.08, 0.035, 0.38)
+
+[node name="AttackTelegraph" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.06, 0)
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("TorusMesh_telegraph")
+surface_material_override/0 = SubResource("Material_telegraph")
+visible = false
 
 [node name="CombatComponent" type="Node" parent="."]
 script = ExtResource("2_combat")
