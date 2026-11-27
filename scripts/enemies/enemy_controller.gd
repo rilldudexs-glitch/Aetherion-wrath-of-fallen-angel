@@ -26,6 +26,9 @@ func _ready() -> void:
 	if combat:
 		combat.defeated.connect(_on_defeated)
 
+func set_target(new_target: Node3D) -> void:
+	target = new_target
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
@@ -36,8 +39,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	if not is_instance_valid(target):
 		_set_state(State.IDLE)
-		velocity.x = move_toward(velocity.x, 0.0, move_speed * delta * 2.0)
-		velocity.z = move_toward(velocity.z, 0.0, move_speed * delta * 2.0)
+		_stop_horizontal(delta)
 		move_and_slide()
 		return
 
