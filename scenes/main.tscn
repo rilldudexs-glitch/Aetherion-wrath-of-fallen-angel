@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_draeven"]
+[ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_floor"]
 size = Vector3(40, 1, 40)
@@ -8,16 +9,7 @@ size = Vector3(40, 1, 40)
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(40, 1, 40)
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape_player"]
-radius = 0.45
-height = 1.8
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
-radius = 0.45
-height = 1.8
-
 [node name="Main" type="Node3D"]
-
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 rotation = Vector3(-0.8, -0.5, 0)
@@ -33,20 +25,9 @@ shape = SubResource("BoxShape_floor")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_floor")
 
-[node name="Player" type="CharacterBody3D" parent="."]
-position = Vector3(0, 1, 0)
-script = ExtResource("1_player")
+[node name="Draeven" parent="." instance=ExtResource("1_draeven")]
+position = Vector3(0, 0, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-shape = SubResource("CapsuleShape_player")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
-mesh = SubResource("CapsuleMesh_player")
-
-[node name="CameraPivot" type="Node3D" parent="Player"]
-position = Vector3(0, 2.8, 5.5)
-rotation = Vector3(-0.32, 0, 0)
-
-[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot"]
-current = true
-fov = 65.0
+[node name="CombatComponent" type="Node" parent="Draeven"]
+script = ExtResource("2_combat")
+max_health = 250.0
