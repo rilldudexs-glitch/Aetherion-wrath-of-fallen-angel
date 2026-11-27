@@ -33,8 +33,8 @@ var mat_boot: StandardMaterial3D
 var mat_eye: StandardMaterial3D
 
 func _ready() -> void:
-	mat_coat = _material(Color(0.025, 0.055, 0.12), 0.72, 0.12)
-	mat_coat_inner = _material(Color(0.012, 0.02, 0.045), 0.85, 0.05)
+	mat_coat = _material(Color(0.018, 0.035, 0.085), 0.72, 0.12)
+	mat_coat_inner = _material(Color(0.006, 0.008, 0.016), 0.85, 0.05)
 	mat_silver = _material(Color(0.58, 0.68, 0.78), 0.35, 0.45)
 	mat_armor = _material(Color(0.09, 0.13, 0.19), 0.38, 0.32)
 	mat_skin = _material(Color(0.72, 0.55, 0.43), 0.82, 0.0)
@@ -154,10 +154,10 @@ func _build_character() -> void:
 	chest.name = "ChestPivot"
 	chest.position = Vector3(0, 1.38, 0)
 	body.add_child(chest)
-	_add_capsule(chest, "Torso", 0.29, 0.62, Vector3.ZERO, mat_coat)
-	_add_box(chest, "ChestArmor", Vector3(0.43, 0.25, 0.13), Vector3(0, 0.12, -0.13), mat_armor)
-	_add_box(chest, "SilverChestTrim", Vector3(0.34, 0.035, 0.025), Vector3(0, 0.19, -0.205), mat_silver)
-	_add_box(chest, "Belt", Vector3(0.43, 0.075, 0.32), Vector3(0, -0.27, 0), mat_boot)
+	_add_capsule(chest, "Torso", 0.245, 0.62, Vector3.ZERO, mat_coat)
+	_add_box(chest, "ChestArmor", Vector3(0.37, 0.23, 0.12), Vector3(0, 0.12, -0.13), mat_armor)
+	_add_box(chest, "SilverChestTrim", Vector3(0.29, 0.03, 0.025), Vector3(0, 0.19, -0.205), mat_silver)
+	_add_box(chest, "Belt", Vector3(0.37, 0.065, 0.29), Vector3(0, -0.27, 0), mat_boot)
 	_add_box(chest, "BeltBuckle", Vector3(0.09, 0.09, 0.035), Vector3(0, -0.27, -0.18), mat_silver)
 
 	head = Node3D.new()
@@ -165,10 +165,15 @@ func _build_character() -> void:
 	head.position = Vector3(0, 1.86, 0)
 	body.add_child(head)
 	_add_sphere(head, "Face", Vector3(0.16, 0.22, 0.145), Vector3.ZERO, mat_skin)
-	_add_sphere(head, "HairCap", Vector3(0.17, 0.13, 0.16), Vector3(0, 0.14, 0.015), mat_hair)
-	_add_box(head, "FrontHair", Vector3(0.25, 0.12, 0.12), Vector3(0, 0.12, -0.105), mat_hair)
-	_add_box(head, "HairSideL", Vector3(0.065, 0.25, 0.12), Vector3(-0.145, -0.01, 0.005), mat_hair)
-	_add_box(head, "HairSideR", Vector3(0.065, 0.25, 0.12), Vector3(0.145, -0.01, 0.005), mat_hair)
+	_add_sphere(head, "HairCap", Vector3(0.175, 0.14, 0.17), Vector3(0, 0.14, 0.025), mat_hair)
+	# Soft downward fringe, with layered locks instead of swept-back spikes.
+	_add_capsule(head, "FringeCenter", 0.052, 0.29, Vector3(-0.015, 0.015, -0.115), mat_hair).rotation.z = -0.10
+	_add_capsule(head, "FringeLeft", 0.046, 0.25, Vector3(-0.085, 0.005, -0.105), mat_hair).rotation.z = 0.28
+	_add_capsule(head, "FringeRight", 0.046, 0.27, Vector3(0.075, -0.005, -0.11), mat_hair).rotation.z = -0.25
+	_add_capsule(head, "SideLockL", 0.045, 0.34, Vector3(-0.145, -0.105, 0.015), mat_hair).rotation.z = -0.08
+	_add_capsule(head, "SideLockR", 0.045, 0.34, Vector3(0.145, -0.105, 0.015), mat_hair).rotation.z = 0.08
+	_add_capsule(head, "BackHairL", 0.055, 0.32, Vector3(-0.105, -0.11, 0.105), mat_hair).rotation.z = -0.12
+	_add_capsule(head, "BackHairR", 0.055, 0.32, Vector3(0.105, -0.11, 0.105), mat_hair).rotation.z = 0.12
 	_add_box(head, "EyeL", Vector3(0.035, 0.018, 0.012), Vector3(-0.065, 0.015, -0.139), mat_eye)
 	_add_box(head, "EyeR", Vector3(0.035, 0.018, 0.012), Vector3(0.065, 0.015, -0.139), mat_eye)
 
@@ -196,13 +201,13 @@ func _make_arm(label: String, origin: Vector3, sleeve_material: Material, is_rig
 	var pivot := Node3D.new()
 	pivot.name = label
 	pivot.position = origin
-	_add_capsule(pivot, "UpperSleeve", 0.115, 0.38, Vector3(0, -0.16, 0), sleeve_material)
-	_add_sphere(pivot, "ShoulderGuard", Vector3(0.15, 0.13, 0.15), Vector3(0, 0.015, 0), mat_armor)
+	_add_capsule(pivot, "UpperSleeve", 0.095, 0.38, Vector3(0, -0.16, 0), sleeve_material)
+	_add_sphere(pivot, "ShoulderGuard", Vector3(0.125, 0.11, 0.13), Vector3(0, 0.015, 0), mat_armor)
 	var forearm := Node3D.new()
 	forearm.name = "ForearmPivot"
 	forearm.position = Vector3(0, -0.34, 0)
 	pivot.add_child(forearm)
-	_add_capsule(forearm, "Forearm", 0.085, 0.32, Vector3(0, -0.14, 0), mat_armor)
+	_add_capsule(forearm, "Forearm", 0.072, 0.32, Vector3(0, -0.14, 0), mat_armor)
 	_add_box(forearm, "Bracer", Vector3(0.19, 0.13, 0.12), Vector3(0, -0.19, -0.015), mat_silver)
 	var hand := Node3D.new()
 	hand.name = "Hand"
@@ -223,12 +228,12 @@ func _make_leg(label: String, origin: Vector3) -> Node3D:
 	var pivot := Node3D.new()
 	pivot.name = label
 	pivot.position = origin
-	_add_capsule(pivot, "Thigh", 0.13, 0.42, Vector3(0, -0.2, 0), mat_boot)
+	_add_capsule(pivot, "Thigh", 0.105, 0.42, Vector3(0, -0.2, 0), mat_boot)
 	var knee := Node3D.new()
 	knee.name = "KneePivot"
 	knee.position = Vector3(0, -0.39, 0)
 	pivot.add_child(knee)
-	_add_capsule(knee, "Shin", 0.105, 0.42, Vector3(0, -0.2, 0), mat_armor)
+	_add_capsule(knee, "Shin", 0.09, 0.42, Vector3(0, -0.2, 0), mat_armor)
 	_add_box(knee, "Boot", Vector3(0.2, 0.13, 0.32), Vector3(0, -0.4, -0.055), mat_boot)
 	return pivot
 
