@@ -1,17 +1,38 @@
 # AETHERION — Implementation Roadmap
 
-## Current foundation pass
-- Draeven character scene with placeholder body, named skeleton hierarchy, right-hand BoneAttachment3D, WeaponSocket, and third-person camera.
-- Separate player movement controller.
+## Implemented foundation
+
+- Draeven third-person scene with a placeholder body, named skeleton hierarchy, right-hand BoneAttachment3D, WeaponSocket, and third-person camera.
+- Separate camera-relative player movement controller.
+- Player melee controller with light/heavy attacks using a short-range physics shape query.
+- Player dodge movement with a brief invulnerability window.
 - Reusable CombatComponent for health, damage, healing, and defeat signals.
-- Reusable enemy controller with idle, chase, attack, recover, and dead states.
-- Boss controller with three health-threshold phases.
-- EncounterDirector for sequential arena waves.
+- Enemy state flow: idle, chase, attack windup, recovery, and dead.
+- Enemy attacks recheck distance when the windup ends, so a player who moves away can avoid the hit.
+- Three enemy stat archetypes: Ashen Raider, Ashen Brute, and Ashen Stalker.
+- Boss controller with three health-threshold phases. Later phases increase movement speed and attack damage while reducing attack windup and cooldown.
+- EncounterDirector supports regular waves followed by a dedicated final boss wave.
+- Main scene is configured as a small combat test: three regular enemies, then one boss.
 
-## Enemy and boss content plan
-The base scenes are templates, not final enemy content. Each enemy variant will be a child scene with its own mesh, animation, stats, attack timings, and behavior profile.
+## Current keyboard test controls
 
-Planned campaign bosses:
+| Key | Action |
+|---|---|
+| W / A / S / D | Move |
+| J | Light attack |
+| K | Heavy attack |
+| Space | Dodge |
+
+## Enemy archetype profiles
+
+- **Ashen Raider:** fast movement, lighter hits, short windup.
+- **Ashen Brute:** slow movement, high health and damage, long windup and recovery.
+- **Ashen Stalker:** faster pursuit and longer detection range, balanced damage.
+
+These are gameplay stat profiles using the shared placeholder enemy scene. They do not yet have unique meshes, animation sets, or bespoke attack logic.
+
+## Planned campaign bosses
+
 1. Severin Kael — Eldoria.
 2. The Ancient Stag — Sylvaris.
 3. The Iron Colossus — Drakmor.
@@ -22,11 +43,13 @@ Planned campaign bosses:
 8. Vaelgor — final encounter.
 
 ## Next implementation passes
-1. Verify all scenes and scripts in the Godot editor.
-2. Add animation state machine and proper humanoid rig/skin.
-3. Add hitbox/hurtbox combat with telegraphed attacks and dodge windows.
-4. Add distinct enemy archetypes and boss-specific phase patterns.
-5. Add touch controls, UI, save data, and Android profiling.
+
+1. Open and validate the project in Godot 4.3; this repository pass has not yet been run through the Godot editor or headless parser.
+2. Add a proper humanoid rig, skinned model, animation clips, and weapon attachment alignment.
+3. Replace the current sphere-query melee with animation-timed hitboxes/hurtboxes and real combo timing.
+4. Give each enemy archetype distinct behavior and give each campaign boss bespoke attacks, telegraphs, and phase mechanics.
+5. Add a combat HUD, touch controls, save data, audio, and Android profiling.
 
 ## Scope notes
-This pass is a playable architecture scaffold. It does not yet contain final character art, animation clips, complete enemy attacks, unique boss movesets, loot, or an Android APK. The named bosses are documented as planned content; the boss base controller is shared infrastructure.
+
+This is an expanding gameplay foundation, not a finished playable build. Character and enemy visuals remain placeholders. The skeleton is a named hierarchy scaffold, not a finished skinned rig. There are no final animation clips, boss-specific movesets, loot progression, touch controls, save system, or Android APK yet. Godot runtime validation is still pending because no Godot executable was available during this implementation pass.
