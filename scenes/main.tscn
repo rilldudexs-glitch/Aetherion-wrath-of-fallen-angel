@@ -1,7 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_draeven"]
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="3_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_base.tscn" id="4_boss"]
+[ext_resource type="Script" path="res://scripts/systems/encounter_director.gd" id="5_director"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_floor"]
 size = Vector3(40, 1, 40)
@@ -31,3 +34,22 @@ position = Vector3(0, 0, 0)
 [node name="CombatComponent" type="Node" parent="Draeven"]
 script = ExtResource("2_combat")
 max_health = 250.0
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="SpawnA" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(-6, 0, -5)
+
+[node name="SpawnB" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(6, 0, -5)
+
+[node name="BossSpawn" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0, 0, -8)
+
+[node name="EncounterDirector" type="Node3D" parent="."]
+script = ExtResource("5_director")
+auto_start = true
+enemy_scenes = Array[PackedScene]([ExtResource("3_enemy"), ExtResource("4_boss")])
+spawn_points = Array[NodePath]([NodePath("../SpawnPoints/SpawnA"), NodePath("../SpawnPoints/SpawnB"), NodePath("../SpawnPoints/BossSpawn")])
+player_path = NodePath("../Draeven")
+waves = Array[int]([2, 1])
