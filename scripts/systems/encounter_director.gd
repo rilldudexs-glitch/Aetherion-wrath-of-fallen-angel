@@ -8,6 +8,8 @@ signal encounter_completed
 
 @export var auto_start: bool = false
 @export var enemy_scenes: Array[PackedScene] = []
+@export var boss_scene: PackedScene
+@export var boss_on_final_wave: bool = true
 @export var spawn_points: Array[NodePath] = []
 @export var player_path: NodePath
 @export var waves: Array[int] = [3, 4, 1]
@@ -44,8 +46,10 @@ func _start_next_wave() -> void:
 	wave_started.emit(current_wave + 1)
 	var amount: int = maxi(waves[current_wave], 0)
 	for index in amount:
-		var scene := enemy_scenes[index % enemy_scenes.size()]
-		var spawn_node := get_node_or_null(spawn_points[index % spawn_points.size()]) as Node3D
+		var is_boss_wave := boss_on_final_wave and current_wave == waves.size() - 1 and boss_scene != null
+		var scene: PackedScene = boss_scene if is_boss_wave else enemy_scenes[index % enemy_scenes.size()]
+		var spawn_index := spawn_points.size() - 1 if is_boss_wave else index % spawn_points.size()
+		var spawn_node := get_node_or_null(spawn_points[spawn_index]) as Node3D
 		if scene == null or spawn_node == null:
 			continue
 		var enemy := scene.instantiate()
