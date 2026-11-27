@@ -6,6 +6,7 @@
 - Separate camera-relative player movement controller.
 - Player melee controller with light/heavy attacks using a short-range physics shape query.
 - Player dodge movement with a brief invulnerability window.
+- Lightweight combo VFX: three differently angled slash arcs, a brighter echoed slash on the third hit, impact flashes, short spark streaks, and a ground shock ring on a successful heavy hit.
 - Reusable CombatComponent for health, damage, healing, and defeat signals.
 - Enemy state flow: idle, chase, attack windup, recovery, and dead.
 - Enemy attacks show a ground warning ring during windup and recheck distance when the windup ends, so a player who moves away can avoid the hit.
@@ -22,6 +23,14 @@
 | J | Light attack |
 | K | Heavy attack |
 | Space | Dodge |
+
+## Combo visual effects
+
+- Light combo hits use pale blue-white slash arcs that change angle per hit.
+- The third light hit adds a second, softer echo arc.
+- Confirmed hits spawn a brief impact flash and a small burst of directional sparks.
+- Heavy attacks use a larger, brighter arc; a successful heavy hit adds an expanding ground shock ring.
+- Effects are short-lived mesh effects rather than persistent particle systems to keep the Android rendering cost controlled.
 
 ## Enemy archetype profiles
 
