@@ -8,7 +8,7 @@
 - Player dodge movement with a brief invulnerability window.
 - Reusable CombatComponent for health, damage, healing, and defeat signals.
 - Enemy state flow: idle, chase, attack windup, recovery, and dead.
-- Enemy attacks recheck distance when the windup ends, so a player who moves away can avoid the hit.
+- Enemy attacks show a ground warning ring during windup and recheck distance when the windup ends, so a player who moves away can avoid the hit.
 - Three enemy stat archetypes: Ashen Raider, Ashen Brute, and Ashen Stalker.
 - Boss controller with three health-threshold phases. Later phases increase movement speed and attack damage while reducing attack windup and cooldown.
 - EncounterDirector supports regular waves followed by a dedicated final boss wave.
