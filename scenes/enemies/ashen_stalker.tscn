@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
+
+[node name="AshenStalker" instance=ExtResource("1_base")]
+max_health = 80.0
+move_speed = 3.15
+detection_range = 14.0
+attack_range = 1.85
+attack_damage = 16.0
+attack_cooldown = 1.55
+attack_windup = 0.55
+recovery_duration = 0.45
