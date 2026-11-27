@@ -8,14 +8,23 @@ signal encounter_completed
 
 @export var enemy_scenes: Array[PackedScene] = []
 @export var spawn_points: Array[NodePath] = []
+@export var player_path: NodePath
 @export var waves: Array[int] = [3, 4, 1]
 
 var current_wave: int = -1
 var alive_enemies: int = 0
 var active: bool = false
+var player: Node3D
+
+func _ready() -> void:
+	if not player_path.is_empty():
+		player = get_node_or_null(player_path) as Node3D
 
 func start_encounter() -> void:
 	if active or waves.is_empty() or enemy_scenes.is_empty() or spawn_points.is_empty():
+		return
+	if not is_instance_valid(player):
+		push_warning("EncounterDirector: assign a valid player_path before starting.")
 		return
 	active = true
 	current_wave = -1
@@ -40,6 +49,8 @@ func _start_next_wave() -> void:
 		get_tree().current_scene.add_child(enemy)
 		if enemy is Node3D:
 			enemy.global_position = spawn_node.global_position
+		if enemy.has_method("set_target"):
+			enemy.set_target(player)
 		if enemy.has_signal("defeated"):
 			enemy.defeated.connect(_on_enemy_defeated)
 		alive_enemies += 1
