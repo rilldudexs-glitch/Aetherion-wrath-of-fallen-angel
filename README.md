@@ -53,3 +53,9 @@ The Android touch HUD is shown when the runtime reports touchscreen support. Des
 ## Project status
 
 This is an active prototype. EncounterDirector exposes `arena_locked`, `arena_unlocked`, `wave_started`, `wave_cleared`, and `inter_wave_break` signals for arena UI and gate feedback. The repository changes have not yet been validated in a Godot editor/runtime or packaged into a tested APK.
+
+## Checkpoint & Save
+- Activate the glowing altar in the demo arena with **G / USE** (or the mobile **USE** button).
+- Saves the current scene and checkpoint position to `user://aetherion_checkpoint.cfg`.
+- Reloading the same scene restores Draeven at the latest activated checkpoint and restores health.
+- Progression (Soul Shards, weapon levels, discovered/equipped elements) remains stored separately in `user://aetherion_progress.cfg`.
