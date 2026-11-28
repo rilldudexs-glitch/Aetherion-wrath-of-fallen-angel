@@ -6,9 +6,10 @@ func _initialize() -> void:
 	call_deferred("_run_smoke_test")
 
 func _run_smoke_test() -> void:
-	var packed_scene := ResourceLoader.load("res://scenes/main.tscn", "PackedScene", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as PackedScene
+	var main_scene_path := String(ProjectSettings.get_setting("application/run/main_scene", "res://scenes/main.tscn"))
+	var packed_scene := ResourceLoader.load(main_scene_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as PackedScene
 	if packed_scene == null:
-		push_error("Runtime smoke test: main scene failed to load.")
+		push_error("Runtime smoke test: configured main scene failed to load: " + main_scene_path)
 		quit(1)
 		return
 
@@ -22,7 +23,7 @@ func _run_smoke_test() -> void:
 	current_scene = active_scene
 	packed_scene = null
 
-	print("RUNTIME SMOKE TEST: main scene started.")
+	print("RUNTIME SMOKE TEST: configured main scene started: " + main_scene_path)
 	await create_timer(3.0).timeout
 
 	if is_instance_valid(active_scene):
