@@ -84,7 +84,7 @@ func _build_menu() -> void:
 	footer.add_theme_constant_override("separation", 10)
 	outer.add_child(footer)
 	_add_button(footer, "RESUME", _close_menu)
-	_add_button(footer, "QUIT TO TITLE", _quit_to_title)
+	_add_button(footer, "RESTART DEMO", _quit_to_title)
 
 func _add_button(parent: Container, caption: String, callback: Callable) -> void:
 	var button := Button.new()
@@ -163,10 +163,13 @@ func _add_info(value: String) -> void:
 func _upgrade_form(form_index: int) -> void:
 	if player_combat == null:
 		return
+	var previous_form := player_combat.weapon_form
 	player_combat.weapon_form = form_index
+	var upgraded := player_combat.upgrade_current_weapon()
+	player_combat.weapon_form = previous_form
 	if player_combat.visual:
-		player_combat.visual.set_weapon_form(form_index)
-	if player_combat.upgrade_current_weapon():
+		player_combat.visual.set_weapon_form(previous_form)
+	if upgraded:
 		_refresh_content()
 
 func _equip_element(element: String) -> void:
