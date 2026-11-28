@@ -10,14 +10,14 @@ const COMBO_COLORS: Array[Color] = [
 	Color(0.95, 0.98, 1.0, 1.0)
 ]
 
-func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions: Array[Vector3]) -> void:
+func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions: Array[Vector3], weapon_form: int = 0) -> void:
 	var direction := Vector3(forward.x, 0.0, forward.z).normalized()
 	if direction.length_squared() < 0.001:
 		direction = Vector3.FORWARD
 	var origin := get_parent().global_position + Vector3.UP * (1.12 if not heavy else 1.0)
-	_spawn_slash(origin, direction, combo_index, heavy)
+	_spawn_slash(origin, direction, combo_index, heavy, false, weapon_form)
 	if not heavy and combo_index == 3:
-		_spawn_slash(origin + Vector3.UP * 0.08, direction, 2, false, true)
+		_spawn_slash(origin + Vector3.UP * 0.08, direction, 2, false, true, weapon_form)
 	for hit_position in hit_positions:
 		var impact_position := hit_position + Vector3.UP * 0.85
 		_spawn_impact(impact_position, combo_index, heavy)
@@ -25,16 +25,16 @@ func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions:
 	if heavy and not hit_positions.is_empty():
 		_spawn_shock_ring(hit_positions[0])
 
-func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: bool, echo: bool = false) -> void:
+func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: bool, echo: bool = false, weapon_form: int = 0) -> void:
 	var slash := MeshInstance3D.new()
 	slash.mesh = _build_arc_mesh(1.35 if not heavy else 1.7, 0.78 if not heavy else 0.92)
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.albedo_color = Color(0.45, 0.72, 1.0, 0.48) if echo else (Color(0.9, 0.96, 1.0, 0.92) if heavy else COMBO_COLORS[clampi(combo_index - 1, 0, 2)])
+	var form_colors := [Color(0.72, 0.88, 1.0), Color(1.0, 0.68, 0.32), Color(0.72, 0.48, 1.0), Color(0.38, 0.92, 0.9)]\n\tvar form_color: Color = form_colors[clampi(weapon_form, 0, 3)]\n\tmaterial.albedo_color = Color(form_color.r, form_color.g, form_color.b, 0.48) if echo else (Color(form_color.r, form_color.g, form_color.b, 0.96) if heavy else Color(form_color.r, form_color.g, form_color.b, COMBO_COLORS[clampi(combo_index - 1, 0, 2)].a))
 	material.emission_enabled = true
-	material.emission = Color(0.42, 0.72, 1.0) if not heavy else Color(0.8, 0.92, 1.0)
+	material.emission = form_color * (1.5 if not heavy else 2.2)
 	material.emission_energy_multiplier = 1.8 if not heavy else 2.7
 	slash.material_override = material
 	get_tree().current_scene.add_child(slash)
