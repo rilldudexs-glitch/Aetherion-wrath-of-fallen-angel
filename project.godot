@@ -59,3 +59,8 @@ lock_on={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":81)]
 }
+
+switch_weapon={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":69)]
+}
