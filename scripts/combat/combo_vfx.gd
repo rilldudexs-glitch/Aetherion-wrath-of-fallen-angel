@@ -25,6 +25,42 @@ func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions:
 	if heavy and not hit_positions.is_empty():
 		_spawn_shock_ring(hit_positions[0])
 
+
+func play_element_burst(origin: Vector3, tint: Color, radius: float) -> void:
+	var burst := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.5
+	sphere.height = 1.0
+	burst.mesh = sphere
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(tint.r, tint.g, tint.b, 0.28)
+	material.emission_enabled = true
+	material.emission = tint
+	material.emission_energy_multiplier = 2.8
+	burst.material_override = material
+	get_tree().current_scene.add_child(burst)
+	burst.global_position = origin + Vector3.UP * 0.85
+	_animate_mesh(burst, material, 0.38, Vector3.ONE * 0.2, Vector3.ONE * radius * 2.0)
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.48
+	torus.outer_radius = 0.56
+	ring.mesh = torus
+	var ring_material := StandardMaterial3D.new()
+	ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ring_material.albedo_color = tint
+	ring_material.emission_enabled = true
+	ring_material.emission = tint
+	ring_material.emission_energy_multiplier = 3.0
+	ring.material_override = ring_material
+	get_tree().current_scene.add_child(ring)
+	ring.global_position = origin + Vector3.UP * 0.06
+	ring.rotation.x = deg_to_rad(90.0)
+	_animate_mesh(ring, ring_material, 0.42, Vector3.ONE * 0.25, Vector3.ONE * radius * 1.8)
+
 func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: bool, echo: bool = false, weapon_form: int = 0) -> void:
 	var slash := MeshInstance3D.new()
 	slash.mesh = _build_arc_mesh(1.35 if not heavy else 1.7, 0.78 if not heavy else 0.92)
