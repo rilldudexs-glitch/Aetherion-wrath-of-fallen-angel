@@ -3,6 +3,7 @@ class_name DraevenVisual
 
 @export var animation_blend_speed: float = 12.0
 @export_file("*.glb") var skinned_model_path: String = "res://assets/characters/draeven/draeven_Apose.glb"
+@export var weapon_bone_candidates: PackedStringArray = PackedStringArray(["RightHand", "R_Hand", "RightHand_End", "R_Hand_End"])
 
 var body: Node3D
 var chest: Node3D
@@ -293,23 +294,48 @@ func _try_load_skinned_model() -> bool:
 		model_animation_player = null
 		push_warning("Draeven GLB has no Skeleton3D; using procedural fallback.")
 		return false
+	var weapon_bone := _resolve_weapon_bone(skeleton)
+	if weapon_bone.is_empty():
+		skinned_model.queue_free()
+		skinned_model = null
+		model_animation_player = null
+		push_warning("Draeven rig has no supported right-hand bone (%s); using procedural fallback." % ", ".join(weapon_bone_candidates))
+		return false
 	var imported_sword := _find_named_node(skinned_model, "Katana")
 	if imported_sword is GeometryInstance3D:
 		(imported_sword as GeometryInstance3D).visible = false
 	var hand_attachment := BoneAttachment3D.new()
 	hand_attachment.name = "WeaponHandAttachment"
-	hand_attachment.bone_name = "RightHand"
+	hand_attachment.bone_name = weapon_bone
 	skeleton.add_child(hand_attachment)
 	weapon_socket = Marker3D.new()
 	weapon_socket.name = "WeaponSocket"
+	# Imported hand bones differ in orientation between source rigs. Keep the
+	# socket local and easy to tune without changing the source skeleton.
+	weapon_socket.position = Vector3.ZERO
 	hand_attachment.add_child(weapon_socket)
 	_build_sword(weapon_socket)
 	model_animation_player.animation_finished.connect(_on_model_animation_finished)
 	using_skinned_model = true
 	action_name = &"idle"
 	_play_model_animation("idle-loop")
-	print("DRAEVEN MODEL: loaded skinned A-Pose with %d animations." % model_animation_player.get_animation_list().size())
+	var available_clips := model_animation_player.get_animation_list()
+	var expected_clips := ["idle-loop", "walk-loop", "run-loop", "attack_light", "attack_heavy", "combo", "finisher", "dodge", "hit_reaction", "weapon_switch", "death", "victory"]
+	var missing_clips: Array[String] = []
+	for clip in expected_clips:
+		if not model_animation_player.has_animation(clip):
+			missing_clips.append(clip)
+	if not missing_clips.is_empty():
+		push_warning("Draeven rig is missing animation clips: %s" % ", ".join(missing_clips))
+	print("DRAEVEN MODEL: loaded skinned model; %d animations; weapon bone: %s." % [available_clips.size(), weapon_bone])
 	return true
+
+func _resolve_weapon_bone(skeleton: Skeleton3D) -> StringName:
+	for candidate in weapon_bone_candidates:
+		if skeleton.find_bone(candidate) >= 0:
+			return StringName(candidate)
+	return &""
+
 
 func _play_model_animation(clip_name: String) -> void:
 	if not is_instance_valid(model_animation_player):
