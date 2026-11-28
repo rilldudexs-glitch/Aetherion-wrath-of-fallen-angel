@@ -6,7 +6,7 @@ func _initialize() -> void:
 	call_deferred("_run_smoke_test")
 
 func _run_smoke_test() -> void:
-	var packed_scene := ResourceLoader.load("res://scenes/main.tscn") as PackedScene
+	var packed_scene := ResourceLoader.load("res://scenes/main.tscn", "PackedScene", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as PackedScene
 	if packed_scene == null:
 		push_error("Runtime smoke test: main scene failed to load.")
 		quit(1)
