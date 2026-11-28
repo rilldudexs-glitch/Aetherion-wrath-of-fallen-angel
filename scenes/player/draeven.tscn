@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/player/player_combat_controller.gd" id="2_player_combat"]
 [ext_resource type="Script" path="res://scripts/combat/combo_vfx.gd" id="3_combo_vfx"]
 [ext_resource type="Script" path="res://scripts/player/draeven_visual.gd" id="4_visual"]
+[ext_resource type="Script" path="res://scripts/player/draeven_touch_controls.gd" id="5_touch"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.34
@@ -36,3 +37,16 @@ script = ExtResource("2_player_combat")
 
 [node name="ComboVFX" type="Node3D" parent="."]
 script = ExtResource("3_combo_vfx")
+
+[node name="TouchHUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TouchControls" type="Control" parent="TouchHUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_touch")
