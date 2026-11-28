@@ -22,6 +22,8 @@ var action_name: StringName = &"idle"
 var action_time: float = 0.0
 var walk_phase: float = 0.0
 var attack_variant: int = 1
+var weapon_form: int = 0
+var weapon_switch_tween: Tween
 
 var mat_coat: StandardMaterial3D
 var mat_coat_inner: StandardMaterial3D
@@ -138,6 +140,63 @@ func play_dodge(direction: Vector3) -> void:
 
 func get_weapon_socket() -> Marker3D:
 	return weapon_socket
+
+func set_weapon_form(next_form: int) -> void:
+	weapon_form = posmod(next_form, 4)
+	if not is_instance_valid(weapon_socket):
+		return
+	if weapon_switch_tween and weapon_switch_tween.is_running():
+		weapon_switch_tween.kill()
+	weapon_switch_tween = create_tween()
+	weapon_switch_tween.tween_property(weapon_socket, "scale", Vector3(0.05, 0.05, 0.05), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	weapon_switch_tween.tween_callback(_rebuild_weapon)
+	weapon_switch_tween.tween_property(weapon_socket, "scale", Vector3.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _rebuild_weapon() -> void:
+	for child in weapon_socket.get_children():
+		child.queue_free()
+	match weapon_form:
+		0:
+			_build_sword(weapon_socket)
+		1:
+			_build_chain_blades(weapon_socket)
+		2:
+			_build_twin_reapers(weapon_socket)
+		3:
+			_build_soul_swords(weapon_socket)
+
+func _build_chain_blades(parent: Node3D) -> void:
+	for side in [-1.0, 1.0]:
+		var pivot := Node3D.new()
+		pivot.position = Vector3(side * 0.11, -0.08, 0.0)
+		parent.add_child(pivot)
+		_add_box(pivot, "ChainGrip", Vector3(0.045, 0.18, 0.045), Vector3.ZERO, mat_boot)
+		_add_box(pivot, "ChainGuard", Vector3(0.16, 0.035, 0.05), Vector3(0, -0.1, 0), mat_silver)
+		_add_box(pivot, "ChainBlade", Vector3(0.07, 0.38, 0.025), Vector3(0, -0.31, 0), mat_silver)
+		for link in range(4):
+			_add_box(pivot, "ChainLink%d" % link, Vector3(0.025, 0.065, 0.025), Vector3(0, -0.52 - float(link) * 0.055, 0), mat_silver)
+
+func _build_twin_reapers(parent: Node3D) -> void:
+	for side in [-1.0, 1.0]:
+		var pivot := Node3D.new()
+		pivot.position = Vector3(side * 0.12, -0.12, 0.0)
+		pivot.rotation.z = side * 0.18
+		parent.add_child(pivot)
+		_add_box(pivot, "ReaperHandle", Vector3(0.055, 0.48, 0.055), Vector3(0, -0.2, 0), mat_boot)
+		_add_box(pivot, "ReaperCrossguard", Vector3(0.22, 0.045, 0.07), Vector3(0, -0.43, 0), mat_silver)
+		_add_box(pivot, "ReaperBlade", Vector3(0.11, 0.46, 0.035), Vector3(side * 0.06, -0.68, 0), mat_silver).rotation.z = -side * 0.24
+		_add_box(pivot, "ReaperEdge", Vector3(0.025, 0.38, 0.018), Vector3(side * 0.11, -0.68, -0.025), mat_eye).rotation.z = -side * 0.24
+
+func _build_soul_swords(parent: Node3D) -> void:
+	for side in [-1.0, 1.0]:
+		var pivot := Node3D.new()
+		pivot.position = Vector3(side * 0.105, -0.05, 0.0)
+		pivot.rotation.z = side * 0.12
+		parent.add_child(pivot)
+		_add_box(pivot, "SoulSwordGrip", Vector3(0.045, 0.16, 0.045), Vector3(0, -0.08, 0), mat_boot)
+		_add_box(pivot, "SoulSwordGuard", Vector3(0.19, 0.035, 0.055), Vector3(0, -0.17, 0), mat_silver)
+		_add_box(pivot, "SoulSwordBlade", Vector3(0.075, 0.58, 0.028), Vector3(0, -0.47, 0), mat_silver)
+		_add_box(pivot, "SoulSwordCore", Vector3(0.018, 0.52, 0.012), Vector3(0, -0.47, -0.022), mat_eye)
 
 func _return_to_idle() -> void:
 	action_name = &"idle"
