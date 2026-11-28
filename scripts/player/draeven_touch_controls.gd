@@ -27,6 +27,7 @@ func _draw() -> void:
 	draw_circle(knob, 31.0, Color(0.48, 0.62, 0.82, 0.48))
 	var attack_center := Vector2(size.x - 100.0, size.y - 112.0)
 	_draw_button(attack_center, "ATK", Color(0.18, 0.42, 0.72, 0.72))
+	_draw_button(attack_center + Vector2(-4.0, -102.0), "LOCK", Color(0.30, 0.34, 0.52, 0.72))
 	_draw_button(attack_center + Vector2(-92.0, -66.0), "HEAVY", Color(0.48, 0.30, 0.16, 0.72))
 	_draw_button(attack_center + Vector2(-92.0, 38.0), "DODGE", Color(0.20, 0.48, 0.36, 0.72))
 
@@ -59,7 +60,9 @@ func _handle_press(index: int, pos: Vector2) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	var action := ""
-	if pos.distance_to(attack_center) <= button_radius + 12.0:
+	if pos.distance_to(attack_center + Vector2(-4.0, -102.0)) <= button_radius + 12.0:
+		action = "lock_on"
+	elif pos.distance_to(attack_center) <= button_radius + 12.0:
 		action = "light_attack"
 	elif pos.distance_to(attack_center + Vector2(-92.0, -66.0)) <= button_radius + 12.0:
 		action = "heavy_attack"
