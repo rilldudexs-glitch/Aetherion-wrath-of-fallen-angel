@@ -32,7 +32,9 @@ func _spawn_slash(origin: Vector3, direction: Vector3, combo_index: int, heavy: 
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	var form_colors := [Color(0.72, 0.88, 1.0), Color(1.0, 0.68, 0.32), Color(0.72, 0.48, 1.0), Color(0.38, 0.92, 0.9)]\n\tvar form_color: Color = form_colors[clampi(weapon_form, 0, 3)]\n\tmaterial.albedo_color = Color(form_color.r, form_color.g, form_color.b, 0.48) if echo else (Color(form_color.r, form_color.g, form_color.b, 0.96) if heavy else Color(form_color.r, form_color.g, form_color.b, COMBO_COLORS[clampi(combo_index - 1, 0, 2)].a))
+	var form_colors := [Color(0.72, 0.88, 1.0), Color(1.0, 0.68, 0.32), Color(0.72, 0.48, 1.0), Color(0.38, 0.92, 0.9)]
+	var form_color: Color = form_colors[clampi(weapon_form, 0, 3)]
+	material.albedo_color = Color(form_color.r, form_color.g, form_color.b, 0.48) if echo else (Color(form_color.r, form_color.g, form_color.b, 0.96) if heavy else Color(form_color.r, form_color.g, form_color.b, COMBO_COLORS[clampi(combo_index - 1, 0, 2)].a))
 	material.emission_enabled = true
 	material.emission = form_color * (1.5 if not heavy else 2.2)
 	material.emission_energy_multiplier = 1.8 if not heavy else 2.7
