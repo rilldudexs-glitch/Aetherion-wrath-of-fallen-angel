@@ -33,6 +33,9 @@ var owns_attack_slot: bool = false
 var slow_time_left: float = 0.0
 var slow_multiplier: float = 1.0
 
+func _exit_tree() -> void:
+	_release_attack_slot()
+
 func _ready() -> void:
 	add_to_group("enemies")
 	if not target_path.is_empty():
