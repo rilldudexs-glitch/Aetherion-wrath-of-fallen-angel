@@ -9,8 +9,10 @@ var move_vector: Vector2 = Vector2.ZERO
 var held_fingers: Dictionary = {}
 var stick_radius: float = 74.0
 var button_radius: float = 39.0
+var player_combat: PlayerCombatController
 
 func _ready() -> void:
+	player_combat = get_parent().get_parent().get_node_or_null("PlayerCombatController") as PlayerCombatController
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = OS.has_feature("mobile") or DisplayServer.is_touchscreen_available()
@@ -26,6 +28,12 @@ func _draw() -> void:
 	var knob := stick_center + move_vector * stick_radius * 0.62
 	draw_circle(knob, 31.0, Color(0.48, 0.62, 0.82, 0.48))
 	var attack_center := Vector2(size.x - 100.0, size.y - 112.0)
+	if player_combat:
+		var energy_ratio := player_combat.soul_energy / player_combat.soul_energy_max
+		var energy_label := "SOUL %d  |  %s" % [roundi(player_combat.soul_energy), player_combat.equipped_elements[player_combat.active_element_slot].to_upper()]
+		draw_string(ThemeDB.fallback_font, Vector2(size.x - 250.0, size.y - 470.0), energy_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.82, 0.91, 1.0, 0.95))
+		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0, 7.0), Color(0.08, 0.1, 0.16, 0.75))
+		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0 * energy_ratio, 7.0), Color(0.35, 0.72, 0.95, 0.95))
 	_draw_button(attack_center, "ATK", Color(0.18, 0.42, 0.72, 0.72))
 	_draw_button(attack_center + Vector2(-4.0, -102.0), "LOCK", Color(0.30, 0.34, 0.52, 0.72))
 	_draw_button(attack_center + Vector2(-4.0, -202.0), "FORM", Color(0.34, 0.25, 0.52, 0.72))
@@ -38,6 +46,10 @@ func _draw_button(center: Vector2, label: String, tint: Color) -> void:
 	draw_circle(center, button_radius, tint)
 	draw_arc(center, button_radius, 0.0, TAU, 36, Color(0.85, 0.91, 1.0, 0.68), 2.0)
 	draw_string(ThemeDB.fallback_font, center + Vector2(-ThemeDB.fallback_font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x * 0.5, 4.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+
+func _process(_delta: float) -> void:
+	if visible and player_combat:
+		queue_redraw()
 
 func _input(event: InputEvent) -> void:
 	if not visible:
