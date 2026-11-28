@@ -197,7 +197,7 @@ func _cast_elemental_skill() -> void:
 	}
 	var data: Dictionary = element_data.get(element, element_data["flame"])
 	var skill_power: float = 1.0 + float(weapon_levels[weapon_form] - 1) * 0.08
-	var origin := player.global_position + Vector3.UP * 0.15
+	var origin: Vector3 = player.global_position + Vector3.UP * 0.15
 	if element == "life" and combat:
 		combat.heal(32.0)
 	_apply_element_area(element, float(data["radius"]), float(data["damage"]) * skill_power)
@@ -246,8 +246,8 @@ func _start_dodge() -> void:
 func _perform_attack(heavy: bool) -> void:
 	attack_timer = attack_cooldown
 	pending_heavy = heavy
-	var form_damage := [1.0, 0.92, 1.08, 1.0][weapon_form]
-	var form_reach := [1.0, 1.12, 0.92, 1.0][weapon_form]
+	var form_damage: float = [1.0, 0.92, 1.08, 1.0][weapon_form]
+	var form_reach: float = [1.0, 1.12, 0.92, 1.0][weapon_form]
 	var weapon_power: float = 1.0 + float(weapon_levels[weapon_form] - 1) * 0.12
 	pending_damage = (heavy_damage if heavy else light_damage) * form_damage * weapon_power
 	pending_reach = (heavy_range if heavy else light_range) * form_reach
