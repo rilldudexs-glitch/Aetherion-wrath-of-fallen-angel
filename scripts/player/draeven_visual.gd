@@ -50,8 +50,12 @@ func _process(delta: float) -> void:
 		var swing := sin(walk_phase) * 0.48
 		left_leg.rotation.x = swing
 		right_leg.rotation.x = -swing
-		left_arm.rotation.x = -swing * 0.62
+		left_arm.rotation.x = lerpf(left_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
 		right_arm.rotation.x = lerpf(right_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
+		left_forearm.rotation.x = lerpf(left_forearm.rotation.x, 0.12 + maxf(0.0, swing) * 0.18, delta * animation_blend_speed)
+		right_forearm.rotation.x = lerpf(right_forearm.rotation.x, 0.12 + maxf(0.0, -swing) * 0.18, delta * animation_blend_speed)
+		left_knee.rotation.x = lerpf(left_knee.rotation.x, maxf(0.0, swing) * 0.32, delta * animation_blend_speed)
+		right_knee.rotation.x = lerpf(right_knee.rotation.x, maxf(0.0, -swing) * 0.32, delta * animation_blend_speed)
 		coat_left.rotation.x = lerpf(coat_left.rotation.x, swing * 0.12, delta * 8.0)
 		coat_right.rotation.x = lerpf(coat_right.rotation.x, -swing * 0.12, delta * 8.0)
 	elif action_name == &"idle":
@@ -91,17 +95,21 @@ func play_attack(combo_index: int, heavy: bool) -> void:
 	match combo_index:
 		1:
 			active_tween.tween_property(right_arm, "rotation", Vector3(-1.55, 0.0, -0.85), duration * 0.42)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.25, 0.0, 0.3), duration * 0.42)
 			active_tween.tween_property(chest, "rotation:y", -0.22, duration * 0.42)
 		2:
 			active_tween.tween_property(right_arm, "rotation", Vector3(-1.35, 0.0, 0.95), duration * 0.42)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.35, 0.0, -0.28), duration * 0.42)
 			active_tween.tween_property(chest, "rotation:y", 0.24, duration * 0.42)
 		3:
 			active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.15), duration * 0.42)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.6, 0.0, 0.12), duration * 0.42)
 			active_tween.tween_property(chest, "rotation:x", -0.18, duration * 0.42)
 		_:
 			active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.1), duration * 0.45)
 			active_tween.tween_property(chest, "rotation:x", -0.24, duration * 0.45)
 	active_tween.chain().tween_property(right_arm, "rotation", Vector3.ZERO, duration * 0.58)
+	active_tween.parallel().tween_property(right_forearm, "rotation", Vector3.ZERO, duration * 0.58)
 	active_tween.parallel().tween_property(chest, "rotation", Vector3.ZERO, duration * 0.58)
 	active_tween.tween_callback(_return_to_idle)
 
@@ -138,6 +146,8 @@ func _reset_limb_pose() -> void:
 	right_arm.rotation = Vector3.ZERO
 	left_forearm.rotation = Vector3.ZERO
 	right_forearm.rotation = Vector3.ZERO
+	left_knee.rotation = Vector3.ZERO
+	right_knee.rotation = Vector3.ZERO
 	left_leg.rotation = Vector3.ZERO
 	right_leg.rotation = Vector3.ZERO
 	left_knee.rotation = Vector3.ZERO
@@ -217,6 +227,10 @@ func _make_arm(label: String, origin: Vector3, sleeve_material: Material, is_rig
 	forearm.name = "ForearmPivot"
 	forearm.position = Vector3(0, -0.34, 0)
 	pivot.add_child(forearm)
+	if is_right:
+		right_forearm = forearm
+	else:
+		left_forearm = forearm
 	_add_capsule(forearm, "Forearm", 0.072, 0.32, Vector3(0, -0.14, 0), mat_armor)
 	_add_box(forearm, "Bracer", Vector3(0.19, 0.13, 0.12), Vector3(0, -0.19, -0.015), mat_silver)
 	var hand := Node3D.new()
@@ -243,6 +257,10 @@ func _make_leg(label: String, origin: Vector3) -> Node3D:
 	knee.name = "KneePivot"
 	knee.position = Vector3(0, -0.39, 0)
 	pivot.add_child(knee)
+	if label == "LeftLeg":
+		left_knee = knee
+	else:
+		right_knee = knee
 	_add_capsule(knee, "Shin", 0.09, 0.42, Vector3(0, -0.2, 0), mat_armor)
 	_add_box(knee, "Boot", Vector3(0.2, 0.13, 0.32), Vector3(0, -0.4, -0.055), mat_boot)
 	_add_box(knee, "KneeGuard", Vector3(0.15, 0.13, 0.055), Vector3(0, -0.035, -0.07), mat_armor)
