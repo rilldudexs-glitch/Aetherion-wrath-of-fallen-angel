@@ -8,6 +8,10 @@ signal defeated
 
 enum State { IDLE, CHASE, ATTACK, RECOVER, DEAD }
 
+## Limits simultaneous enemy attacks so the player is not dogpiled.
+static var active_attackers: int = 0
+static var max_simultaneous_attackers: int = 2
+
 @export var max_health: float = 60.0
 @export var move_speed: float = 2.8
 @export var detection_range: float = 10.0
@@ -25,6 +29,7 @@ var state: State = State.IDLE
 var attack_timer: float = 0.0
 var state_timer: float = 0.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var owns_attack_slot: bool = false
 
 func _ready() -> void:
 	add_to_group("enemies")
