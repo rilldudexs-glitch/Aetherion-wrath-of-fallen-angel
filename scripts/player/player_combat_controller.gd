@@ -12,6 +12,7 @@ class_name PlayerCombatController
 @export var dodge_duration: float = 0.32
 @export var combo_reset_time: float = 0.9
 @export var input_buffer_time: float = 0.24
+@export var weapon_switch_cooldown: float = 0.42
 
 @onready var player: DraevenController = get_parent() as DraevenController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
@@ -27,6 +28,8 @@ var pending_damage: float = 0.0
 var pending_reach: float = 0.0
 var pending_combo_index: int = 0
 var pending_heavy: bool = false
+var weapon_form: int = 0
+var weapon_switch_timer: float = 0.0
 var sphere := SphereShape3D.new()
 
 func _ready() -> void:
@@ -34,6 +37,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(attack_timer - delta, 0.0)
+	weapon_switch_timer = maxf(weapon_switch_timer - delta, 0.0)
 	combo_timer = maxf(combo_timer - delta, 0.0)
 	light_buffer_timer = maxf(light_buffer_timer - delta, 0.0)
 	if pending_hit_timer >= 0.0:
@@ -45,6 +49,8 @@ func _physics_process(delta: float) -> void:
 
 	if player.is_dodging():
 		return
+	if Input.is_action_just_pressed("switch_weapon") and weapon_switch_timer <= 0.0:
+		_switch_weapon()
 
 	if Input.is_action_just_pressed("dodge"):
 		_start_dodge()
@@ -60,6 +66,15 @@ func _physics_process(delta: float) -> void:
 			light_buffer_timer = 0.0
 			_perform_attack(false)
 
+func _switch_weapon() -> void:
+	weapon_form = (weapon_form + 1) % 4
+	weapon_switch_timer = weapon_switch_cooldown
+	if visual:
+		visual.set_weapon_form(weapon_form)
+	combo_step = 0
+	combo_timer = 0.0
+	light_buffer_timer = 0.0
+
 func _start_dodge() -> void:
 	var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
@@ -73,13 +88,15 @@ func _start_dodge() -> void:
 func _perform_attack(heavy: bool) -> void:
 	attack_timer = attack_cooldown
 	pending_heavy = heavy
-	pending_damage = heavy_damage if heavy else light_damage
-	pending_reach = heavy_range if heavy else light_range
+	var form_damage := [1.0, 0.92, 1.08, 1.0][weapon_form]
+	var form_reach := [1.0, 1.12, 0.92, 1.0][weapon_form]
+	pending_damage = (heavy_damage if heavy else light_damage) * form_damage
+	pending_reach = (heavy_range if heavy else light_range) * form_reach
 	pending_combo_index = 0 if heavy else (combo_step % 3) + 1
 	pending_hit_timer = heavy_hit_delay if heavy else light_hit_delay
 
 	if visual:
-		visual.play_attack(pending_combo_index, heavy)
+		visual.play_attack(pending_combo_index, heavy, weapon_form)
 
 	if not heavy:
 		combo_step = (combo_step % 3) + 1
