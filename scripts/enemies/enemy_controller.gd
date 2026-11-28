@@ -30,6 +30,8 @@ var attack_timer: float = 0.0
 var state_timer: float = 0.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var owns_attack_slot: bool = false
+var slow_time_left: float = 0.0
+var slow_multiplier: float = 1.0
 
 func _ready() -> void:
 	add_to_group("enemies")
@@ -43,11 +45,16 @@ func _ready() -> void:
 func set_target(new_target: Node3D) -> void:
 	target = new_target
 
+func apply_slow(multiplier: float, duration: float) -> void:
+	slow_multiplier = clampf(multiplier, 0.1, 1.0)
+	slow_time_left = maxf(slow_time_left, duration)
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 
 	attack_timer = maxf(attack_timer - delta, 0.0)
+	slow_time_left = maxf(slow_time_left - delta, 0.0)
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
@@ -87,8 +94,9 @@ func _physics_process(delta: float) -> void:
 		_stop_horizontal(delta)
 	elif distance > attack_range:
 		_set_state(State.CHASE)
-		velocity.x = direction.x * move_speed
-		velocity.z = direction.z * move_speed
+		var current_speed := move_speed * (slow_multiplier if slow_time_left > 0.0 else 1.0)
+		velocity.x = direction.x * current_speed
+		velocity.z = direction.z * current_speed
 		_face_target(direction, delta)
 	else:
 		_stop_horizontal(delta)
