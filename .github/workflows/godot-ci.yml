@@ -38,12 +38,23 @@ jobs:
           set -o pipefail
           godot --headless --editor --path . --import --quit 2>&1 | tee import.log
 
-      - name: Run main scene and capture diagnostics
+      - name: Validate every scene resource
         shell: bash
         run: |
           set -o pipefail
-          godot --headless --path . --quit-after 5 2>&1 | tee runtime.log
-          if grep -E "SCRIPT ERROR|Parse Error|ERROR:" import.log runtime.log; then
+          godot --headless --path . --script res://tests/validate_scenes.gd 2>&1 | tee scene_validation.log
+
+      - name: Install virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+
+      - name: Run main scene with Compatibility renderer
+        shell: bash
+        run: |
+          set -o pipefail
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 godot --path . --rendering-method gl_compatibility --quit-after 180 2>&1 | tee runtime.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:" import.log scene_validation.log runtime.log; then
             echo "Godot reported errors; see logs above."
             exit 1
           fi
@@ -56,5 +67,6 @@ jobs:
           path: |
             import.log
             runtime.log
+            scene_validation.log
             .godot/
           if-no-files-found: ignore
