@@ -25,12 +25,18 @@ func _ready() -> void:
 	camera_pivot.rotation.x = camera_pitch
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	elif event is InputEventScreenDrag:
 		camera_yaw -= event.relative.x * camera_sensitivity
 		camera_pitch = clampf(camera_pitch - event.relative.y * camera_sensitivity, camera_pitch_min, camera_pitch_max)
-		camera_pivot.rotation.x = camera_pitch
+	elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		camera_yaw -= event.relative.x * camera_sensitivity
+		camera_pitch = clampf(camera_pitch - event.relative.y * camera_sensitivity, camera_pitch_min, camera_pitch_max)
 
 func _physics_process(delta: float) -> void:
+	camera_pivot.rotation.x = camera_pitch
+	camera_pivot.rotation.y = wrapf(camera_yaw - rotation.y, -PI, PI)
 	if dodge_time_left > 0.0:
 		dodge_time_left = maxf(dodge_time_left - delta, 0.0)
 		velocity.x = dodge_direction.x * dodge_speed
