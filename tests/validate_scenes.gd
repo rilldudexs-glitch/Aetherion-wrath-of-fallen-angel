@@ -10,7 +10,7 @@ func _validate_all_scenes() -> void:
 	_collect_scenes("res://scenes", scene_paths)
 	scene_paths.sort()
 	for scene_path in scene_paths:
-		var packed := ResourceLoader.load(scene_path) as PackedScene
+		var packed := ResourceLoader.load(scene_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as PackedScene
 		if packed == null:
 			failures.append("Could not load: " + scene_path)
 			continue
