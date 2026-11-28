@@ -5,6 +5,9 @@ signal encounter_started
 signal wave_started(wave_number: int)
 signal wave_cleared(wave_number: int)
 signal encounter_completed
+signal arena_locked
+signal arena_unlocked
+signal inter_wave_break(next_wave: int)
 
 @export var auto_start: bool = false
 @export var enemy_scenes: Array[PackedScene] = []
@@ -13,11 +16,14 @@ signal encounter_completed
 @export var spawn_points: Array[NodePath] = []
 @export var player_path: NodePath
 @export var waves: Array[int] = [3, 4, 1]
+@export_range(0.0, 10.0, 0.25) var inter_wave_delay: float = 2.5
+@export var arena_gate_paths: Array[NodePath] = []
 
 var current_wave: int = -1
 var alive_enemies: int = 0
 var active: bool = false
 var player: Node3D
+var transitioning: bool = false
 
 func _ready() -> void:
 	if not player_path.is_empty():
