@@ -13,6 +13,10 @@ class_name PlayerCombatController
 @export var combo_reset_time: float = 0.9
 @export var input_buffer_time: float = 0.24
 @export var weapon_switch_cooldown: float = 0.42
+@export var soul_energy_max: float = 100.0
+@export var soul_energy_regen: float = 7.0
+@export var elemental_skill_cost: float = 35.0
+@export var elemental_skill_cooldown: float = 1.8
 
 @onready var player: DraevenController = get_parent() as DraevenController
 @onready var combat: CombatComponent = player.get_node_or_null("CombatComponent") as CombatComponent
@@ -30,6 +34,10 @@ var pending_combo_index: int = 0
 var pending_heavy: bool = false
 var weapon_form: int = 0
 var weapon_switch_timer: float = 0.0
+var soul_energy: float = 100.0
+var elemental_skill_timer: float = 0.0
+var equipped_elements: Array[String] = ["flame", "frost"]
+var active_element_slot: int = 0
 var sphere := SphereShape3D.new()
 
 func _ready() -> void:
@@ -38,6 +46,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(attack_timer - delta, 0.0)
 	weapon_switch_timer = maxf(weapon_switch_timer - delta, 0.0)
+	elemental_skill_timer = maxf(elemental_skill_timer - delta, 0.0)
+	soul_energy = minf(soul_energy + soul_energy_regen * delta, soul_energy_max)
 	combo_timer = maxf(combo_timer - delta, 0.0)
 	light_buffer_timer = maxf(light_buffer_timer - delta, 0.0)
 	if pending_hit_timer >= 0.0:
@@ -51,6 +61,10 @@ func _physics_process(delta: float) -> void:
 		return
 	if Input.is_action_just_pressed("switch_weapon") and weapon_switch_timer <= 0.0:
 		_switch_weapon()
+	if Input.is_action_just_pressed("cycle_element"):
+		active_element_slot = (active_element_slot + 1) % equipped_elements.size()
+	if Input.is_action_just_pressed("element_skill"):
+		_cast_elemental_skill()
 
 	if Input.is_action_just_pressed("dodge"):
 		_start_dodge()
@@ -74,6 +88,57 @@ func _switch_weapon() -> void:
 	combo_step = 0
 	combo_timer = 0.0
 	light_buffer_timer = 0.0
+
+
+func _cast_elemental_skill() -> void:
+	if elemental_skill_timer > 0.0 or soul_energy < elemental_skill_cost:
+		return
+	soul_energy -= elemental_skill_cost
+	elemental_skill_timer = elemental_skill_cooldown
+	var element: String = equipped_elements[active_element_slot]
+	var element_data := {
+		"flame": {"radius": 3.2, "damage": 48.0, "color": Color(1.0, 0.36, 0.12)},
+		"frost": {"radius": 3.0, "damage": 22.0, "color": Color(0.35, 0.78, 1.0)},
+		"storm": {"radius": 2.7, "damage": 30.0, "color": Color(0.95, 0.88, 0.32)},
+		"void": {"radius": 3.8, "damage": 36.0, "color": Color(0.68, 0.36, 0.95)},
+		"life": {"radius": 2.5, "damage": 12.0, "color": Color(0.35, 0.95, 0.58)}
+	}
+	var data: Dictionary = element_data.get(element, element_data["flame"])
+	var origin := player.global_position + Vector3.UP * 0.15
+	if element == "life" and combat:
+		combat.heal(32.0)
+	_apply_element_area(element, float(data["radius"]), float(data["damage"]))
+	if combo_vfx:
+		combo_vfx.play_element_burst(origin, data["color"], float(data["radius"]))
+
+func _apply_element_area(element: String, radius: float, damage: float) -> void:
+	var area := SphereShape3D.new()
+	area.radius = radius
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = area
+	query.transform = Transform3D(Basis.IDENTITY, player.global_position + Vector3.UP * 0.9)
+	query.exclude = [player.get_rid()]
+	query.collision_mask = 1
+	query.collide_with_areas = false
+	var hits := player.get_world_3d().direct_space_state.intersect_shape(query, 24)
+	var affected: Dictionary = {}
+	var hit_count := 0
+	for hit in hits:
+		var collider := hit.get("collider") as Node3D
+		if collider == null:
+			continue
+		var target_combat := _find_combat_component(collider)
+		if target_combat == null or affected.has(target_combat.get_instance_id()):
+			continue
+		affected[target_combat.get_instance_id()] = true
+		if element == "storm" and hit_count >= 3:
+			continue
+		target_combat.apply_damage(damage, player)
+		if element == "frost":
+			var enemy := collider as EnemyController
+			if enemy:
+				enemy.apply_slow(0.55, 2.4)
+		hit_count += 1
 
 func _start_dodge() -> void:
 	var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
