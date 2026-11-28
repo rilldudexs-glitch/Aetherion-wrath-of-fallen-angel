@@ -27,6 +27,7 @@ var state_timer: float = 0.0
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready() -> void:
+	add_to_group("enemies")
 	if not target_path.is_empty():
 		target = get_node_or_null(target_path) as Node3D
 	if combat:
