@@ -5,7 +5,7 @@ config_version=5
 
 [application]
 config/name="AETHERION: Wrath of the Fallen"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/world/regions/forsaken_outskirts.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 
 [display]
