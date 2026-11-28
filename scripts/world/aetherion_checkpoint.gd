@@ -55,11 +55,6 @@ func _build_altar() -> void:
 	altar_light.omni_range = 4.0
 	add_child(altar_light)
 
-	var shape_node := CollisionShape3D.new()
-	var shape := SphereShape3D.new()
-	shape.radius = 3.0
-	shape_node.shape = shape
-	add_child(shape_node)
 
 	prompt = Label3D.new()
 	prompt.text = "CHECKPOINT\n[G / USE]"
