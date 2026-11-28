@@ -1,0 +1,140 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ashen_raider.tscn" id="2_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoint_altar.tscn" id="3_checkpoint"]
+[ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="4_combat"]
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(28, 1, 52)
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+size = Vector3(28, 1, 52)
+
+[sub_resource type="BoxShape3D" id="WallShape"]
+size = Vector3(1, 5, 52)
+
+[sub_resource type="BoxMesh" id="WallMesh"]
+size = Vector3(1, 5, 52)
+
+[sub_resource type="BoxShape3D" id="BlockShape"]
+size = Vector3(3, 2, 3)
+
+[sub_resource type="BoxMesh" id="BlockMesh"]
+size = Vector3(3, 2, 3)
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.16, 0.16, 0.19, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="GreyboxMaterial"]
+albedo_color = Color(0.24, 0.22, 0.27, 1)
+roughness = 0.9
+
+[node name="ForsakenOutskirts" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = Environment.new()
+environment.background_mode = 1
+environment.background_color = Color(0.035, 0.035, 0.055, 1)
+environment.ambient_light_source =  puedo
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.82, -0.45, 0)
+light_color = Color(0.68, 0.72, 0.88, 1)
+light_energy = 0.85
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("FloorShape")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("FloorMesh")
+material_override = SubResource("FloorMaterial")
+
+[node name="WestBoundary" type="StaticBody3D" parent="."]
+position = Vector3(-14, 2.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestBoundary"]
+shape = SubResource("WallShape")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WestBoundary"]
+mesh = SubResource("WallMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="EastBoundary" type="StaticBody3D" parent="."]
+position = Vector3(14, 2.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastBoundary"]
+shape = SubResource("WallShape")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="EastBoundary"]
+mesh = SubResource("WallMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="WestRuin_01" type="MeshInstance3D" parent="."]
+position = Vector3(-8, 1, 7)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="WestRuin_02" type="MeshInstance3D" parent="."]
+position = Vector3(-10, 1, -4)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="EastRuin_01" type="MeshInstance3D" parent="."]
+position = Vector3(8, 1, 4)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="EastRuin_02" type="MeshInstance3D" parent="."]
+position = Vector3(10, 1, -9)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="BrokenStatueBase" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 0.5, -14)
+scale = Vector3(1.2, 1.0, 1.2)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="SpawnMarker" type="Marker3D" parent="."]
+position = Vector3(0, 0, 17)
+
+[node name="Draeven" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 0, 17)
+
+[node name="CombatComponent" type="Node" parent="Draeven"]
+script = ExtResource("4_combat")
+max_health = 250.0
+
+[node name="FirstEncounterRaider" parent="." instance=ExtResource("2_enemy")]
+position = Vector3(0, 0, 1)
+target_path = NodePath("../Draeven")
+
+[node name="CheckpointAltar" parent="." instance=ExtResource("3_checkpoint")]
+position = Vector3(0, 0, -9)
+
+[node name="GateWestPillar" type="MeshInstance3D" parent="."]
+position = Vector3(-5, 2.5, -24)
+scale = Vector3(1.1, 1.7, 1.1)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="GateEastPillar" type="MeshInstance3D" parent="."]
+position = Vector3(5, 2.5, -24)
+scale = Vector3(1.1, 1.7, 1.1)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="GateLintel" type="MeshInstance3D" parent="."]
+position = Vector3(0, 5.2, -24)
+scale = Vector3(2.5, 0.6, 1.1)
+mesh = SubResource("BlockMesh")
+material_override = SubResource("GreyboxMaterial")
+
+[node name="ExitMarker" type="Marker3D" parent="."]
+position = Vector3(0, 0, -27)
