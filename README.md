@@ -24,7 +24,9 @@ Godot 4 third-person action prototype. Rendering is configured for the Compatibi
 
 - Left lower area: virtual movement stick.
 - Right side: drag to orbit the camera.
-- Lower-right buttons: light attack, heavy attack, dodge, lock-on, FORM to cycle Soul Arms, ELEM to switch equipped element, and SKILL to cast its ability.
+- Lower-right buttons: light attack, heavy attack, dodge, lock-on, FORM to cycle Soul Arms, ELEM to switch equipped element, SKILL to cast its ability, and USE to collect nearby rewards.
+- World rewards can grant Soul Shards or unlock a new element; approach a pickup and press G on desktop or USE on mobile.
+- Arena wave clears award Soul Shards automatically (configurable on EncounterDirector).
 - Soul Energy and active element are shown above the combat buttons.
 - Desktop: press E to cycle weapon forms, R to switch the active element, and F to cast its skill.
 - Desktop: press Q to toggle lock-on. Enemies register themselves in the `enemies` group.
@@ -37,6 +39,7 @@ The Android touch HUD is shown when the runtime reports touchscreen support. Des
 - `equip_element(slot, element_name)`: equip a discovered element into slot 0 or 1.
 - `grant_soul_shards(amount)`: award upgrade currency from a reward source.
 - `upgrade_current_weapon()`: spend the current form's shard cost to raise its level (maximum level 5). Costs rise from 5 to 11 shards across levels.
+- `WorldRewardPickup`: reusable Area3D reward scene for Soul Shards or story element unlocks. The main test scene includes a shard pickup and a Storm relic as interaction examples.
 - Progression saves automatically after each change. A dedicated in-game upgrade/discovery UI and actual reward placements are still future work.
 
 ## Project status
