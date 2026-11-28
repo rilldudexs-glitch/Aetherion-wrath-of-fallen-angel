@@ -29,7 +29,6 @@ func _run_smoke_test() -> void:
 		current_scene = null
 		active_scene.free()
 	active_scene = null
-	ResourceLoader.clear_cached_resources()
 	await process_frame
 	print("RUNTIME SMOKE TEST PASSED: scene ran for 3 seconds and shut down cleanly.")
 	quit(0)
