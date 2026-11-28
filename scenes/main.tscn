@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_draeven"]
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
 [ext_resource type="PackedScene" path="res://scenes/world/world_reward_pickup.tscn" id="3_pickup"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoint_altar.tscn" id="4_checkpoint"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_floor"]
 size = Vector3(40, 1, 40)
@@ -43,3 +44,6 @@ position = Vector3(-2.5, 0.65, 0.0)
 reward_type = "element"
 element_name = "storm"
 pickup_title = "Storm Relic"
+
+[node name="CheckpointAltar" parent="." instance=ExtResource("4_checkpoint")]
+position = Vector3(0.0, 0.0, 4.0)
