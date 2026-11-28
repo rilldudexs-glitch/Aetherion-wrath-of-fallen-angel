@@ -55,4 +55,6 @@ A static anatomy mesh or a procedural arrangement of primitive meshes does **not
 
 ## Current status
 
-The repository's current Draeven visual is still a procedural placeholder. This specification records the approved art direction; it does not claim that a final skinned GLB has been produced or integrated.
+Interim base (branch `draeven-kaykit-base`): the KayKit Adventurers "Rogue" skinned model (CC0, 41 bones, built-in animation clips) recolored to the Draeven palette (midnight navy coat, near-black inner clothing, silver-white hair). It is loaded by `scripts/player/draeven_model_visual.gd`, which falls back to the procedural visual if the model cannot be loaded.
+
+This is a stylized chibi base, **not** the approved slim realistic-stylized design: proportions and the hairstyle still differ from the spec. It has not yet been visually checked in-engine or profiled on the target Android device, so scale, facing, sword grip alignment and deformation are unverified. The procedural visual remains in `draeven_visual.gd` as the fallback.
