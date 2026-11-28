@@ -88,17 +88,17 @@ func _handle_press(index: int, pos: Vector2) -> void:
 		action = "interact"
 	if action == "" and pos.distance_to(attack_center + Vector2(-4.0, -402.0)) <= button_radius + 12.0:
 		action = "element_skill"
-	elif pos.distance_to(attack_center + Vector2(-4.0, -302.0)) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center + Vector2(-4.0, -302.0)) <= button_radius + 12.0:
 		action = "cycle_element"
-	elif pos.distance_to(attack_center + Vector2(-4.0, -202.0)) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center + Vector2(-4.0, -202.0)) <= button_radius + 12.0:
 		action = "switch_weapon"
-	elif pos.distance_to(attack_center + Vector2(-4.0, -102.0)) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center + Vector2(-4.0, -102.0)) <= button_radius + 12.0:
 		action = "lock_on"
-	elif pos.distance_to(attack_center) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center) <= button_radius + 12.0:
 		action = "light_attack"
-	elif pos.distance_to(attack_center + Vector2(-92.0, -66.0)) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center + Vector2(-92.0, -66.0)) <= button_radius + 12.0:
 		action = "heavy_attack"
-	elif pos.distance_to(attack_center + Vector2(-92.0, 38.0)) <= button_radius + 12.0:
+	elif action == "" and pos.distance_to(attack_center + Vector2(-92.0, 38.0)) <= button_radius + 12.0:
 		action = "dodge"
 	if action != "":
 		held_fingers[index] = action
