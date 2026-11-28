@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/draeven.tscn" id="1_draeven"]
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="2_combat"]
+[ext_resource type="PackedScene" path="res://scenes/world/world_reward_pickup.tscn" id="3_pickup"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_floor"]
 size = Vector3(40, 1, 40)
@@ -31,3 +32,14 @@ position = Vector3(0, 0, 0)
 [node name="CombatComponent" type="Node" parent="Draeven"]
 script = ExtResource("2_combat")
 max_health = 250.0
+
+[node name="ShardPickup" parent="." instance=ExtResource("3_pickup")]
+position = Vector3(2.0, 0.65, 0.0)
+pickup_title = "Soul Shards +5"
+shard_amount = 5
+
+[node name="StormRelicPickup" parent="." instance=ExtResource("3_pickup")]
+position = Vector3(-2.5, 0.65, 0.0)
+reward_type = "element"
+element_name = "storm"
+pickup_title = "Storm Relic"
