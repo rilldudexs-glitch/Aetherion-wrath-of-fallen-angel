@@ -32,8 +32,8 @@ func _draw() -> void:
 		var energy_ratio := player_combat.soul_energy / player_combat.soul_energy_max
 		var energy_label := "SOUL %d  |  %s" % [roundi(player_combat.soul_energy), player_combat.equipped_elements[player_combat.active_element_slot].to_upper()]
 		draw_string(ThemeDB.fallback_font, Vector2(size.x - 250.0, size.y - 470.0), energy_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.82, 0.91, 1.0, 0.95))
-		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0, 7.0), Color(0.08, 0.1, 0.16, 0.75))
-		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0 * energy_ratio, 7.0), Color(0.35, 0.72, 0.95, 0.95))
+		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0, 7.0)), Color(0.08, 0.1, 0.16, 0.75))
+		draw_rect(Rect2(Vector2(size.x - 250.0, size.y - 458.0), Vector2(150.0 * energy_ratio, 7.0)), Color(0.35, 0.72, 0.95, 0.95))
 	_draw_button(attack_center, "ATK", Color(0.18, 0.42, 0.72, 0.72))
 	_draw_button(attack_center + Vector2(-4.0, -102.0), "LOCK", Color(0.30, 0.34, 0.52, 0.72))
 	_draw_button(attack_center + Vector2(-4.0, -202.0), "FORM", Color(0.34, 0.25, 0.52, 0.72))
