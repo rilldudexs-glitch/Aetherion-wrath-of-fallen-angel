@@ -21,7 +21,6 @@ func _validate_all_scenes() -> void:
 		instance.free()
 		instance = null
 		packed = null
-	ResourceLoader.clear_cached_resources()
 	await process_frame
 	if failures.is_empty():
 		print("SCENE VALIDATION PASSED: %d scenes loaded and instantiated." % scene_paths.size())
