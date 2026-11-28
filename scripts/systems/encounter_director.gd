@@ -45,12 +45,15 @@ func start_encounter() -> void:
 	_start_next_wave()
 
 func _start_next_wave() -> void:
+	transitioning = false
 	current_wave += 1
 	if current_wave >= waves.size():
 		active = false
+		arena_unlocked.emit()
 		encounter_completed.emit()
 		return
 	alive_enemies = 0
+	arena_locked.emit()
 	wave_started.emit(current_wave + 1)
 	var amount: int = maxi(waves[current_wave], 0)
 	for index in amount:
@@ -78,9 +81,18 @@ func _on_enemy_defeated() -> void:
 		_on_wave_empty()
 
 func _on_wave_empty() -> void:
+	if transitioning or not active:
+		return
+	transitioning = true
 	_grant_encounter_reward()
 	wave_cleared.emit(current_wave + 1)
-	call_deferred("_start_next_wave")
+	if current_wave >= waves.size() - 1:
+		call_deferred("_start_next_wave")
+		return
+	inter_wave_break.emit(current_wave + 2)
+	await get_tree().create_timer(inter_wave_delay).timeout
+	if is_inside_tree() and active:
+		_start_next_wave()
 
 func _grant_encounter_reward() -> void:
 	if not is_instance_valid(player):
