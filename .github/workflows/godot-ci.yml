@@ -8,6 +8,7 @@ on:
       - "**.gd"
       - "**.tscn"
       - "**.tres"
+      - "**.glb"
       - "**.godot"
       - "project.godot"
       - ".github/workflows/godot-ci.yml"
