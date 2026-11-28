@@ -10,6 +10,8 @@ Godot 4 third-person action prototype. Rendering is configured for the Compatibi
 - Camera drag on the right side of the screen.
 - Target lock-on with nearest visible enemy selection and camera/player facing assist.
 - Three-step light combo, heavy attack, dodge cancel, and hit VFX.
+- Four Soul Arms forms: Origin Blade, Chain Blades, Twin Reapers, and Soul Swords.
+- Weapon transformations use a timed shrink/swap/reappear animation; each form has its own attack pose, reach/damage tuning, and slash color.
 - Enemy attack telegraphs, wind-up/recovery states, and a shared cap of two simultaneous attackers.
 - Encounter wave pacing with configurable inter-wave breaks and optional arena gate locking.
 
@@ -17,7 +19,8 @@ Godot 4 third-person action prototype. Rendering is configured for the Compatibi
 
 - Left lower area: virtual movement stick.
 - Right side: drag to orbit the camera.
-- Lower-right buttons: light attack, heavy attack, dodge, and lock-on.
+- Lower-right buttons: light attack, heavy attack, dodge, lock-on, and FORM to cycle Soul Arms.
+- Desktop: press E to cycle weapon forms.
 - Desktop: press Q to toggle lock-on. Enemies register themselves in the `enemies` group.
 
 The Android touch HUD is shown when the runtime reports touchscreen support. Desktop keyboard controls remain available.
