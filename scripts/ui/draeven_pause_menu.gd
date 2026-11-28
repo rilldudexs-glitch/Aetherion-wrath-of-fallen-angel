@@ -145,7 +145,7 @@ func _refresh_content() -> void:
 				row.add_child(info)
 				if discovered and not equipped:
 					var equip := Button.new()
-					equip.text = "EQUIP SLOT 1"
+					equip.text = "EQUIP SLOT 2"
 					equip.pressed.connect(_equip_element.bind(element))
 					row.add_child(equip)
 		"settings":
