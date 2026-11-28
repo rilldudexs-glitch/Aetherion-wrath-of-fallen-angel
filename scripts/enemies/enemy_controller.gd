@@ -106,6 +106,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _begin_attack() -> void:
+	if owns_attack_slot or active_attackers >= max_simultaneous_attackers:
+		return
+	active_attackers += 1
+	owns_attack_slot = true
 	_set_state(State.ATTACK)
 	if attack_telegraph:
 		attack_telegraph.visible = true
@@ -116,6 +120,7 @@ func _begin_attack() -> void:
 func _resolve_attack() -> void:
 	if attack_telegraph:
 		attack_telegraph.visible = false
+	_release_attack_slot()
 	if not is_instance_valid(target):
 		return
 	if global_position.distance_to(target.global_position) > attack_range * 1.2:
@@ -145,8 +150,15 @@ func _set_state(next_state: State) -> void:
 func _on_defeated() -> void:
 	if state == State.DEAD:
 		return
+	_release_attack_slot()
 	_set_state(State.DEAD)
 	if attack_telegraph:
 		attack_telegraph.visible = false
 	defeated.emit()
 	queue_free()
+
+func _release_attack_slot() -> void:
+	if not owns_attack_slot:
+		return
+	owns_attack_slot = false
+	active_attackers = maxi(active_attackers - 1, 0)
