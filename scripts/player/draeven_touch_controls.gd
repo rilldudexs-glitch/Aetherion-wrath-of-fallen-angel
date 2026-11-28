@@ -10,6 +10,7 @@ var held_fingers: Dictionary = {}
 var stick_radius: float = 74.0
 var button_radius: float = 39.0
 var player_combat: PlayerCombatController
+var hud_refresh_timer: float = 0.0
 
 func _ready() -> void:
 	player_combat = get_parent().get_parent().get_node_or_null("PlayerCombatController") as PlayerCombatController
@@ -47,8 +48,12 @@ func _draw_button(center: Vector2, label: String, tint: Color) -> void:
 	draw_arc(center, button_radius, 0.0, TAU, 36, Color(0.85, 0.91, 1.0, 0.68), 2.0)
 	draw_string(ThemeDB.fallback_font, center + Vector2(-ThemeDB.fallback_font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x * 0.5, 4.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
 
-func _process(_delta: float) -> void:
-	if visible and player_combat:
+func _process(delta: float) -> void:
+	if not visible or not player_combat:
+		return
+	hud_refresh_timer += delta
+	if hud_refresh_timer >= 0.08:
+		hud_refresh_timer = 0.0
 		queue_redraw()
 
 func _input(event: InputEvent) -> void:
