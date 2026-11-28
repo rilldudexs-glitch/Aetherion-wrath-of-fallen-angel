@@ -12,6 +12,9 @@ Godot 4 third-person action prototype. Rendering is configured for the Compatibi
 - Three-step light combo, heavy attack, dodge cancel, and hit VFX.
 - Four Soul Arms forms: Origin Blade, Chain Blades, Twin Reapers, and Soul Swords.
 - Soul Energy resource with passive regeneration and elemental skills.
+- Saved progression foundation: Flame/Frost start unlocked; story rewards can unlock Storm, Void, and Life, with two element slots available to equip.
+- Soul Arms-only upgrade path: each of the four weapon forms levels independently up to level 5, improving weapon damage and elemental skill power. Soul Shards are the upgrade currency; reward hooks are ready for future chests, bosses, and arena clears.
+- Progression is stored locally in `user://aetherion_progress.cfg` on the device.
 - Five element skill profiles: Flame (burst damage), Frost (enemy slow), Storm (limited multi-target strike), Void (wide area), and Life (self-heal plus light area damage). The prototype starts with Flame and Frost equipped; other elements are reserved for story unlocks.
 - Weapon transformations use a timed shrink/swap/reappear animation; each form has its own attack pose, reach/damage tuning, and slash color.
 - Enemy attack telegraphs, wind-up/recovery states, and a shared cap of two simultaneous attackers.
@@ -27,6 +30,14 @@ Godot 4 third-person action prototype. Rendering is configured for the Compatibi
 - Desktop: press Q to toggle lock-on. Enemies register themselves in the `enemies` group.
 
 The Android touch HUD is shown when the runtime reports touchscreen support. Desktop keyboard controls remain available.
+
+## Progression hooks (prototype foundation)
+
+- `unlock_element("storm")` / `unlock_element("void")` / `unlock_element("life")`: call from a story discovery reward.
+- `equip_element(slot, element_name)`: equip a discovered element into slot 0 or 1.
+- `grant_soul_shards(amount)`: award upgrade currency from a reward source.
+- `upgrade_current_weapon()`: spend the current form's shard cost to raise its level (maximum level 5). Costs rise from 5 to 11 shards across levels.
+- Progression saves automatically after each change. A dedicated in-game upgrade/discovery UI and actual reward placements are still future work.
 
 ## Project status
 
