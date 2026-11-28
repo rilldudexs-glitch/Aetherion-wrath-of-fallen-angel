@@ -18,6 +18,8 @@ signal inter_wave_break(next_wave: int)
 @export var waves: Array[int] = [3, 4, 1]
 @export_range(0.0, 10.0, 0.25) var inter_wave_delay: float = 2.5
 @export var arena_gate_paths: Array[NodePath] = []
+@export_range(0, 100, 1) var shards_per_wave: int = 3
+@export_range(0, 500, 1) var final_encounter_shards: int = 12
 
 var current_wave: int = -1
 var alive_enemies: int = 0
@@ -76,5 +78,17 @@ func _on_enemy_defeated() -> void:
 		_on_wave_empty()
 
 func _on_wave_empty() -> void:
+	_grant_encounter_reward()
 	wave_cleared.emit(current_wave + 1)
 	call_deferred("_start_next_wave")
+
+func _grant_encounter_reward() -> void:
+	if not is_instance_valid(player):
+		return
+	var controller := player.find_child("PlayerCombatController", true, false) as PlayerCombatController
+	if controller == null:
+		return
+	var reward := shards_per_wave
+	if current_wave == waves.size() - 1:
+		reward += final_encounter_shards
+	controller.grant_soul_shards(reward)
