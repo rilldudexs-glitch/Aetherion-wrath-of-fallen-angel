@@ -48,7 +48,7 @@ func _physics_process(delta: float) -> void:
 		var to_target := aim_point - camera_pivot.global_position
 		if to_target.length_squared() > 0.01:
 			var desired_yaw := atan2(to_target.x, to_target.z) + PI
-			var desired_pitch := clampf(-atan2(to_target.y, Vector2(to_target.x, to_target.z).length()), camera_pitch_min, camera_pitch_max)
+			var desired_pitch := clampf(atan2(to_target.y, Vector2(to_target.x, to_target.z).length()), camera_pitch_min, camera_pitch_max)
 			camera_yaw = lerp_angle(camera_yaw, desired_yaw, lock_camera_smooth * delta)
 			camera_pitch = lerpf(camera_pitch, desired_pitch, lock_camera_smooth * delta)
 	camera_pivot.rotation.x = camera_pitch
