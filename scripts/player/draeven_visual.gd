@@ -89,7 +89,7 @@ func play_move(moving: bool) -> void:
 	if not moving:
 		_reset_limb_pose()
 
-func play_attack(combo_index: int, heavy: bool) -> void:
+func play_attack(combo_index: int, heavy: bool, form: int = 0) -> void:
 	action_name = &"attack"
 	action_time = 0.0
 	attack_variant = combo_index
@@ -98,23 +98,37 @@ func play_attack(combo_index: int, heavy: bool) -> void:
 	var duration := 0.34 if not heavy else 0.52
 	active_tween = create_tween()
 	active_tween.set_parallel(true)
-	match combo_index:
+	match form:
 		1:
-			active_tween.tween_property(right_arm, "rotation", Vector3(-1.55, 0.0, -0.85), duration * 0.42)
-			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.25, 0.0, 0.3), duration * 0.42)
-			active_tween.tween_property(chest, "rotation:y", -0.22, duration * 0.42)
+			active_tween.tween_property(right_arm, "rotation", Vector3(-1.75, 0.0, -0.65 if combo_index % 2 == 1 else 0.65), duration * 0.38)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.45, 0.0, 0.0), duration * 0.38)
+			active_tween.tween_property(chest, "rotation:y", -0.28 if combo_index % 2 == 1 else 0.28, duration * 0.38)
 		2:
-			active_tween.tween_property(right_arm, "rotation", Vector3(-1.35, 0.0, 0.95), duration * 0.42)
-			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.35, 0.0, -0.28), duration * 0.42)
-			active_tween.tween_property(chest, "rotation:y", 0.24, duration * 0.42)
+			active_tween.tween_property(right_arm, "rotation", Vector3(-1.9, 0.0, -0.9 if combo_index % 2 == 1 else 0.9), duration * 0.4)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.55, 0.0, 0.0), duration * 0.4)
+			active_tween.tween_property(chest, "rotation:y", 0.32 if combo_index % 2 == 1 else -0.32, duration * 0.4)
 		3:
-			active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.15), duration * 0.42)
-			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.6, 0.0, 0.12), duration * 0.42)
-			active_tween.tween_property(chest, "rotation:x", -0.18, duration * 0.42)
-		_:
-			active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.1), duration * 0.45)
-			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.5, 0.0, 0.0), duration * 0.45)
-			active_tween.tween_property(chest, "rotation:x", -0.24, duration * 0.45)
+			active_tween.tween_property(right_arm, "rotation", Vector3(-1.65, 0.0, -0.45), duration * 0.4)
+			active_tween.tween_property(left_arm, "rotation", Vector3(-1.25, 0.0, 0.5), duration * 0.4)
+			active_tween.tween_property(chest, "rotation:x", -0.22, duration * 0.4)
+		0:
+			match combo_index:
+				1:
+					active_tween.tween_property(right_arm, "rotation", Vector3(-1.55, 0.0, -0.85), duration * 0.42)
+					active_tween.tween_property(right_forearm, "rotation", Vector3(-0.25, 0.0, 0.3), duration * 0.42)
+					active_tween.tween_property(chest, "rotation:y", -0.22, duration * 0.42)
+				2:
+					active_tween.tween_property(right_arm, "rotation", Vector3(-1.35, 0.0, 0.95), duration * 0.42)
+					active_tween.tween_property(right_forearm, "rotation", Vector3(-0.35, 0.0, -0.28), duration * 0.42)
+					active_tween.tween_property(chest, "rotation:y", 0.24, duration * 0.42)
+				3:
+					active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.15), duration * 0.42)
+					active_tween.tween_property(right_forearm, "rotation", Vector3(-0.6, 0.0, 0.12), duration * 0.42)
+					active_tween.tween_property(chest, "rotation:x", -0.18, duration * 0.42)
+				_:
+					active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.1), duration * 0.45)
+					active_tween.tween_property(right_forearm, "rotation", Vector3(-0.5, 0.0, 0.0), duration * 0.45)
+					active_tween.tween_property(chest, "rotation:x", -0.24, duration * 0.45)
 	active_tween.chain().tween_property(right_arm, "rotation", Vector3.ZERO, duration * 0.58)
 	active_tween.parallel().tween_property(right_forearm, "rotation", Vector3.ZERO, duration * 0.58)
 	active_tween.parallel().tween_property(chest, "rotation", Vector3.ZERO, duration * 0.58)
