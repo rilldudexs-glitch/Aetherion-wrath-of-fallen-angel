@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 godot --path . --rendering-method gl_compatibility --quit-after 180 2>&1 | tee runtime.log
+          xvfb-run -a env LIBGL_ALWAYS_SOFTWARE=1 godot --path . --rendering-method gl_compatibility --audio-driver Dummy --script res://tests/runtime_smoke.gd 2>&1 | tee runtime.log
           if grep -E "SCRIPT ERROR|Parse Error|ERROR:" import.log scene_validation.log runtime.log; then
             echo "Godot reported errors; see logs above."
             exit 1
