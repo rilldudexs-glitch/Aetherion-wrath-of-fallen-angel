@@ -159,6 +159,13 @@ func _build_character() -> void:
 	_add_box(chest, "SilverChestTrim", Vector3(0.29, 0.03, 0.025), Vector3(0, 0.19, -0.205), mat_silver)
 	_add_box(chest, "Belt", Vector3(0.37, 0.065, 0.29), Vector3(0, -0.27, 0), mat_boot)
 	_add_box(chest, "BeltBuckle", Vector3(0.09, 0.09, 0.035), Vector3(0, -0.27, -0.18), mat_silver)
+	_add_box(chest, "LeftCoatLapel", Vector3(0.105, 0.39, 0.045), Vector3(-0.105, 0.19, -0.18), mat_coat_inner).rotation.z = -0.16
+	_add_box(chest, "RightCoatLapel", Vector3(0.105, 0.39, 0.045), Vector3(0.105, 0.19, -0.18), mat_coat_inner).rotation.z = 0.16
+	_add_box(chest, "LapelSilverEdgeL", Vector3(0.018, 0.34, 0.018), Vector3(-0.16, 0.19, -0.207), mat_silver).rotation.z = -0.16
+	_add_box(chest, "LapelSilverEdgeR", Vector3(0.018, 0.34, 0.018), Vector3(0.16, 0.19, -0.207), mat_silver).rotation.z = 0.16
+	_add_box(chest, "WaistSilverLine", Vector3(0.34, 0.018, 0.018), Vector3(0, -0.22, -0.16), mat_silver)
+	_add_box(chest, "LeftRibArmor", Vector3(0.055, 0.25, 0.055), Vector3(-0.205, -0.015, -0.105), mat_armor)
+	_add_box(chest, "RightRibArmor", Vector3(0.055, 0.25, 0.055), Vector3(0.205, -0.015, -0.105), mat_armor)
 
 	head = Node3D.new()
 	head.name = "Head"
@@ -196,6 +203,8 @@ func _build_character() -> void:
 	body.add_child(coat_right)
 	_add_box(coat_right, "CoatTailR", Vector3(0.19, 0.7, 0.07), Vector3(0, -0.35, 0), mat_coat)
 	_add_box(coat_right, "CoatTailTrimR", Vector3(0.025, 0.68, 0.018), Vector3(0.07, -0.35, -0.042), mat_silver)
+	_add_box(coat_left, "CoatTailInnerL", Vector3(0.13, 0.62, 0.025), Vector3(0.015, -0.35, -0.045), mat_coat_inner)
+	_add_box(coat_right, "CoatTailInnerR", Vector3(0.13, 0.62, 0.025), Vector3(-0.015, -0.35, -0.045), mat_coat_inner)
 
 func _make_arm(label: String, origin: Vector3, sleeve_material: Material, is_right: bool) -> Node3D:
 	var pivot := Node3D.new()
@@ -203,6 +212,7 @@ func _make_arm(label: String, origin: Vector3, sleeve_material: Material, is_rig
 	pivot.position = origin
 	_add_capsule(pivot, "UpperSleeve", 0.095, 0.38, Vector3(0, -0.16, 0), sleeve_material)
 	_add_sphere(pivot, "ShoulderGuard", Vector3(0.125, 0.11, 0.13), Vector3(0, 0.015, 0), mat_armor)
+	_add_box(pivot, "ShoulderSilverInlay", Vector3(0.105, 0.025, 0.14), Vector3(0, 0.075, -0.012), mat_silver)
 	var forearm := Node3D.new()
 	forearm.name = "ForearmPivot"
 	forearm.position = Vector3(0, -0.34, 0)
@@ -235,6 +245,8 @@ func _make_leg(label: String, origin: Vector3) -> Node3D:
 	pivot.add_child(knee)
 	_add_capsule(knee, "Shin", 0.09, 0.42, Vector3(0, -0.2, 0), mat_armor)
 	_add_box(knee, "Boot", Vector3(0.2, 0.13, 0.32), Vector3(0, -0.4, -0.055), mat_boot)
+	_add_box(knee, "KneeGuard", Vector3(0.15, 0.13, 0.055), Vector3(0, -0.035, -0.07), mat_armor)
+	_add_box(knee, "KneeGuardEdge", Vector3(0.11, 0.018, 0.012), Vector3(0, -0.005, -0.102), mat_silver)
 	return pivot
 
 func _build_sword(parent: Node3D) -> void:
