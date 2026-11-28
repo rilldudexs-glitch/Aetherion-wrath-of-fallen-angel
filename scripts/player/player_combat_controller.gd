@@ -132,7 +132,7 @@ func _resolve_pending_hit() -> void:
 		hit_positions.append(collider.global_position)
 
 	if combo_vfx:
-		combo_vfx.play_attack(pending_combo_index, pending_heavy, -player.global_transform.basis.z, hit_positions)
+		combo_vfx.play_attack(pending_combo_index, pending_heavy, -player.global_transform.basis.z, hit_positions, weapon_form)
 
 func _find_combat_component(node: Node) -> CombatComponent:
 	var current := node
