@@ -48,8 +48,8 @@ func _process(delta: float) -> void:
 	if action_name == &"walk":
 		walk_phase += delta * 10.0
 		var swing := sin(walk_phase) * 0.48
-		left_leg.rotation.x = swing
-		right_leg.rotation.x = -swing
+		left_leg.rotation.x = lerpf(left_leg.rotation.x, swing, delta * animation_blend_speed)
+		right_leg.rotation.x = lerpf(right_leg.rotation.x, -swing, delta * animation_blend_speed)
 		left_arm.rotation.x = lerpf(left_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
 		right_arm.rotation.x = lerpf(right_arm.rotation.x, -swing * 0.62, delta * animation_blend_speed)
 		left_forearm.rotation.x = lerpf(left_forearm.rotation.x, 0.12 + maxf(0.0, swing) * 0.18, delta * animation_blend_speed)
@@ -107,6 +107,7 @@ func play_attack(combo_index: int, heavy: bool) -> void:
 			active_tween.tween_property(chest, "rotation:x", -0.18, duration * 0.42)
 		_:
 			active_tween.tween_property(right_arm, "rotation", Vector3(-2.0, 0.0, -0.1), duration * 0.45)
+			active_tween.tween_property(right_forearm, "rotation", Vector3(-0.5, 0.0, 0.0), duration * 0.45)
 			active_tween.tween_property(chest, "rotation:x", -0.24, duration * 0.45)
 	active_tween.chain().tween_property(right_arm, "rotation", Vector3.ZERO, duration * 0.58)
 	active_tween.parallel().tween_property(right_forearm, "rotation", Vector3.ZERO, duration * 0.58)
