@@ -14,7 +14,7 @@ func play_attack(combo_index: int, heavy: bool, forward: Vector3, hit_positions:
 	var direction := Vector3(forward.x, 0.0, forward.z).normalized()
 	if direction.length_squared() < 0.001:
 		direction = Vector3.FORWARD
-	var origin := get_parent().global_position + Vector3.UP * (1.12 if not heavy else 1.0)
+	var origin: Vector3 = (get_parent() as Node3D).global_position + Vector3.UP * (1.12 if not heavy else 1.0)
 	_spawn_slash(origin, direction, combo_index, heavy, false, weapon_form)
 	if not heavy and combo_index == 3:
 		_spawn_slash(origin + Vector3.UP * 0.08, direction, 2, false, true, weapon_form)
