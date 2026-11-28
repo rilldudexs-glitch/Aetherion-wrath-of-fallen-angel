@@ -67,6 +67,10 @@ func _process(delta: float) -> void:
 		if coat_left:
 			coat_left.rotation.x = lerpf(coat_left.rotation.x, 0.0, delta * 5.0)
 			coat_right.rotation.x = lerpf(coat_right.rotation.x, 0.0, delta * 5.0)
+			left_forearm.rotation.x = lerpf(left_forearm.rotation.x, 0.0, delta * 5.0)
+			right_forearm.rotation.x = lerpf(right_forearm.rotation.x, 0.0, delta * 5.0)
+			left_knee.rotation.x = lerpf(left_knee.rotation.x, 0.0, delta * 5.0)
+			right_knee.rotation.x = lerpf(right_knee.rotation.x, 0.0, delta * 5.0)
 	elif action_name == &"dodge":
 		body.rotation.z = lerpf(body.rotation.z, 0.24, delta * animation_blend_speed)
 	elif action_name == &"attack":
