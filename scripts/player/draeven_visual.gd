@@ -2,6 +2,7 @@ extends Node3D
 class_name DraevenVisual
 
 @export var animation_blend_speed: float = 12.0
+@export_file("*.glb") var skinned_model_path: String = "res://assets/characters/draeven/draeven_Apose.glb"
 
 var body: Node3D
 var chest: Node3D
@@ -24,6 +25,9 @@ var walk_phase: float = 0.0
 var attack_variant: int = 1
 var weapon_form: int = 0
 var weapon_switch_tween: Tween
+var skinned_model: Node3D
+var model_animation_player: AnimationPlayer
+var using_skinned_model: bool = false
 
 var mat_coat: StandardMaterial3D
 var mat_coat_inner: StandardMaterial3D
@@ -43,9 +47,13 @@ func _ready() -> void:
 	mat_hair = _material(Color(0.78, 0.83, 0.9), 0.42, 0.3)
 	mat_boot = _material(Color(0.025, 0.03, 0.045), 0.55, 0.12)
 	mat_eye = _material(Color(0.12, 0.42, 0.72), 0.22, 0.8)
+	if _try_load_skinned_model():
+		return
 	_build_character()
 
 func _process(delta: float) -> void:
+	if using_skinned_model:
+		return
 	action_time += delta
 	if action_name == &"walk":
 		walk_phase += delta * 10.0
@@ -79,6 +87,14 @@ func _process(delta: float) -> void:
 		pass
 
 func play_move(moving: bool) -> void:
+	if using_skinned_model:
+		if action_name in [&"attack", &"dodge"]:
+			return
+		var model_action: StringName = &"walk" if moving else &"idle"
+		if action_name != model_action:
+			action_name = model_action
+			_play_model_animation("walk-loop" if moving else "idle-loop")
+		return
 	if action_name in [&"attack", &"dodge"]:
 		return
 	var next_action: StringName = &"walk" if moving else &"idle"
@@ -90,6 +106,11 @@ func play_move(moving: bool) -> void:
 		_reset_limb_pose()
 
 func play_attack(combo_index: int, heavy: bool, form: int = 0) -> void:
+	if using_skinned_model:
+		action_name = &"attack"
+		var clip := "attack_heavy" if heavy else ("attack_light" if combo_index <= 1 else "combo")
+		_play_model_animation(clip)
+		return
 	action_name = &"attack"
 	action_time = 0.0
 	attack_variant = combo_index
@@ -135,6 +156,10 @@ func play_attack(combo_index: int, heavy: bool, form: int = 0) -> void:
 	active_tween.tween_callback(_return_to_idle)
 
 func play_dodge(direction: Vector3) -> void:
+	if using_skinned_model:
+		action_name = &"dodge"
+		_play_model_animation("dodge")
+		return
 	action_name = &"dodge"
 	action_time = 0.0
 	if active_tween and active_tween.is_running():
@@ -157,6 +182,8 @@ func get_weapon_socket() -> Marker3D:
 
 func set_weapon_form(next_form: int) -> void:
 	weapon_form = posmod(next_form, 4)
+	if using_skinned_model:
+		_play_model_animation("weapon_switch")
 	if not is_instance_valid(weapon_socket):
 		return
 	if weapon_switch_tween and weapon_switch_tween.is_running():
@@ -214,6 +241,9 @@ func _build_soul_swords(parent: Node3D) -> void:
 
 func _return_to_idle() -> void:
 	action_name = &"idle"
+	if using_skinned_model:
+		_play_model_animation("idle-loop")
+		return
 	action_time = 0.0
 	_reset_limb_pose()
 
@@ -232,6 +262,93 @@ func _reset_limb_pose() -> void:
 	right_knee.rotation = Vector3.ZERO
 	body.rotation = Vector3.ZERO
 	chest.rotation = Vector3.ZERO
+
+
+func _try_load_skinned_model() -> bool:
+	if skinned_model_path.is_empty() or not ResourceLoader.exists(skinned_model_path):
+		push_warning("Draeven skinned model is not installed at %s; using the procedural fallback." % skinned_model_path)
+		return false
+	var packed_model := load(skinned_model_path) as PackedScene
+	if packed_model == null:
+		push_warning("Draeven model could not be imported as a PackedScene: %s" % skinned_model_path)
+		return false
+	var instance := packed_model.instantiate()
+	if not instance is Node3D:
+		instance.queue_free()
+		push_warning("Draeven GLB root is not Node3D; using procedural fallback.")
+		return false
+	skinned_model = instance as Node3D
+	skinned_model.name = "SkinnedDraeven"
+	add_child(skinned_model)
+	model_animation_player = _find_first_animation_player(skinned_model)
+	if model_animation_player == null:
+		skinned_model.queue_free()
+		skinned_model = null
+		push_warning("Draeven GLB has no AnimationPlayer; using procedural fallback.")
+		return false
+	var skeleton := _find_first_skeleton(skinned_model)
+	if skeleton == null:
+		skinned_model.queue_free()
+		skinned_model = null
+		model_animation_player = null
+		push_warning("Draeven GLB has no Skeleton3D; using procedural fallback.")
+		return false
+	var imported_sword := _find_named_node(skinned_model, "Katana")
+	if imported_sword is GeometryInstance3D:
+		(imported_sword as GeometryInstance3D).visible = false
+	var hand_attachment := BoneAttachment3D.new()
+	hand_attachment.name = "WeaponHandAttachment"
+	hand_attachment.bone_name = "RightHand"
+	skeleton.add_child(hand_attachment)
+	weapon_socket = Marker3D.new()
+	weapon_socket.name = "WeaponSocket"
+	hand_attachment.add_child(weapon_socket)
+	_build_sword(weapon_socket)
+	model_animation_player.animation_finished.connect(_on_model_animation_finished)
+	using_skinned_model = true
+	action_name = &"idle"
+	_play_model_animation("idle-loop")
+	print("DRAEVEN MODEL: loaded skinned A-Pose with %d animations." % model_animation_player.get_animation_list().size())
+	return true
+
+func _play_model_animation(clip_name: String) -> void:
+	if not is_instance_valid(model_animation_player):
+		return
+	if model_animation_player.has_animation(clip_name):
+		model_animation_player.play(clip_name)
+	elif model_animation_player.has_animation("idle-loop"):
+		model_animation_player.play("idle-loop")
+
+func _on_model_animation_finished(clip_name: StringName) -> void:
+	if clip_name != &"idle-loop" and clip_name != &"walk-loop" and clip_name != &"run-loop":
+		_return_to_idle()
+
+func _find_first_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child in node.get_children():
+		var found := _find_first_animation_player(child)
+		if found != null:
+			return found
+	return null
+
+func _find_first_skeleton(node: Node) -> Skeleton3D:
+	if node is Skeleton3D:
+		return node as Skeleton3D
+	for child in node.get_children():
+		var found := _find_first_skeleton(child)
+		if found != null:
+			return found
+	return null
+
+func _find_named_node(node: Node, target_name: String) -> Node:
+	if node.name == target_name:
+		return node
+	for child in node.get_children():
+		var found := _find_named_node(child, target_name)
+		if found != null:
+			return found
+	return null
 
 func _build_character() -> void:
 	body = Node3D.new()
