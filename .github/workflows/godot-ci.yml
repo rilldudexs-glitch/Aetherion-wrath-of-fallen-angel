@@ -32,18 +32,29 @@ jobs:
           sudo install /tmp/godot/Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
           godot --version
 
-      - name: Import project resources
-        run: godot --headless --editor --path . --import --quit
+      - name: Import resources and parse project
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --editor --path . --import --quit 2>&1 | tee import.log
 
-      - name: Launch project headlessly
-        run: godot --headless --path . --quit-after 3
+      - name: Run main scene and capture diagnostics
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --quit-after 5 2>&1 | tee runtime.log
+          if grep -E "SCRIPT ERROR|Parse Error|ERROR:" import.log runtime.log; then
+            echo "Godot reported errors; see logs above."
+            exit 1
+          fi
 
-      - name: Upload Godot cache and logs
+      - name: Upload diagnostic logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aetherion-godot-ci-logs
+          name: aetherion-godot-diagnostics
           path: |
+            import.log
+            runtime.log
             .godot/
-            ~/.local/share/godot/app_userdata/
           if-no-files-found: ignore
